@@ -1,0 +1,630 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum UserRole {
+  OWNER
+  GENERAL_MANAGER
+  REVENUE_MANAGER
+  FRONT_DESK
+  HOUSEKEEPING_SUPERVISOR
+  HOUSEKEEPER
+  MAINTENANCE
+  FINANCE
+}
+
+enum RoomStatus {
+  CLEAN
+  DIRTY
+  CLEANING
+  INSPECTING
+  MAINTENANCE
+  BLOCKED
+  OUT_OF_ORDER
+}
+
+enum ReservationStatus {
+  PENDING
+  CONFIRMED
+  CHECKED_IN
+  CHECKED_OUT
+  CANCELLED
+  NO_SHOW
+}
+
+enum BookingChannel {
+  DIRECT
+  BOOKING_COM
+  AIRBNB
+  EXPEDIA
+  AGODA
+  MAKEMYTRIP
+  GOIBIBO
+  PHONE
+  WALK_IN
+  OTHER
+}
+
+enum LoyaltyTier {
+  BRONZE
+  SILVER
+  GOLD
+  PLATINUM
+}
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  INSPECTING
+  COMPLETED
+  SKIPPED
+}
+
+enum TaskType {
+  FULL_CLEAN
+  STAYOVER
+  TURNDOWN
+  DEEP_CLEAN
+  INSPECTION
+  MAINTENANCE
+}
+
+enum TaskPriority {
+  URGENT
+  HIGH
+  NORMAL
+  LOW
+}
+
+enum MaintenanceStatus {
+  OPEN
+  IN_PROGRESS
+  ON_HOLD
+  RESOLVED
+  CLOSED
+}
+
+enum MaintenancePriority {
+  CRITICAL
+  HIGH
+  NORMAL
+  LOW
+}
+
+enum RatePlanType {
+  BAR
+  CORPORATE
+  OTA
+  PACKAGE
+  GROUP
+  PROMOTIONAL
+}
+
+enum PaymentMethod {
+  CASH
+  CARD
+  UPI
+  BANK_TRANSFER
+  CORPORATE_CREDIT
+  OTA_COLLECT
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  PARTIAL
+  REFUNDED
+  FAILED
+}
+
+enum AlertSeverity {
+  CRITICAL
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum DiscountType {
+  PERCENT
+  FLAT
+}
+
+// ─── Tenant ───────────────────────────────────────────────────────────────────
+
+model Tenant {
+  id          String   @id @default(uuid())
+  name        String
+  slug        String   @unique
+  plan        String   @default("starter")
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  properties  Property[]
+  users       User[]
+
+  @@map("tenants")
+}
+
+// ─── Property ─────────────────────────────────────────────────────────────────
+
+model Property {
+  id          String   @id @default(uuid())
+  tenantId    String
+  name        String
+  brand       String?
+  chain       String?
+  starRating  Int      @default(3)
+  address     String
+  city        String
+  state       String?
+  country     String   @default("India")
+  pincode     String?
+  phone       String?
+  email       String?
+  website     String?
+  timezone    String   @default("Asia/Kolkata")
+  currency    String   @default("INR")
+  gstNumber   String?
+  logoUrl     String?
+  totalRooms  Int      @default(0)
+  checkInTime String   @default("14:00")
+  checkOutTime String  @default("12:00")
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tenant         Tenant          @relation(fields: [tenantId], references: [id])
+  roomTypes      RoomType[]
+  rooms          Room[]
+  guests         Guest[]
+  reservations   Reservation[]
+  ratePlans      RatePlan[]
+  hkTasks        HousekeepingTask[]
+  maintenances   MaintenanceTicket[]
+  users          User[]
+  aiAlerts       AIAlert[]
+  auditLogs      AuditLog[]
+  promoCodes     PromoCode[]
+
+  @@map("properties")
+}
+
+// ─── User ─────────────────────────────────────────────────────────────────────
+
+model User {
+  id           String    @id @default(uuid())
+  tenantId     String
+  propertyId   String?
+  email        String    @unique
+  password     String
+  firstName    String
+  lastName     String
+  phone        String?
+  role         UserRole  @default(FRONT_DESK)
+  department   String?
+  isActive     Boolean   @default(true)
+  lastLoginAt  DateTime?
+  refreshToken String?
+  avatarUrl    String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  tenant       Tenant    @relation(fields: [tenantId], references: [id])
+  property     Property? @relation(fields: [propertyId], references: [id])
+  auditLogs    AuditLog[]
+  hkTasks      HousekeepingTask[] @relation("AssignedHKTasks")
+  maintenances MaintenanceTicket[] @relation("AssignedMaintenanceTasks")
+
+  @@map("users")
+}
+
+// ─── Room Type ────────────────────────────────────────────────────────────────
+
+model RoomType {
+  id           String   @id @default(uuid())
+  propertyId   String
+  name         String
+  code         String
+  description  String?
+  maxOccupancy Int      @default(2)
+  maxAdults    Int      @default(2)
+  maxChildren  Int      @default(1)
+  baseRate     Decimal  @db.Decimal(10, 2)
+  totalCount   Int      @default(0)
+  amenities    String?  @db.LongText // JSON array
+  imageUrls    String?  @db.LongText // JSON array
+  isActive     Boolean  @default(true)
+  sortOrder    Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  property     Property      @relation(fields: [propertyId], references: [id])
+  rooms        Room[]
+  reservations Reservation[]
+  ratePlanItems RatePlanItem[]
+
+  @@unique([propertyId, code])
+  @@map("room_types")
+}
+
+// ─── Room ─────────────────────────────────────────────────────────────────────
+
+model Room {
+  id           String     @id @default(uuid())
+  propertyId   String
+  roomTypeId   String
+  number       String
+  floor        Int
+  status       RoomStatus @default(DIRTY)
+  isBlocked    Boolean    @default(false)
+  blockReason  String?
+  blockedUntil DateTime?
+  features     String?    @db.LongText // JSON array
+  notes        String?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  property     Property          @relation(fields: [propertyId], references: [id])
+  roomType     RoomType          @relation(fields: [roomTypeId], references: [id])
+  reservations Reservation[]
+  hkTasks      HousekeepingTask[]
+  maintenances MaintenanceTicket[]
+
+  @@unique([propertyId, number])
+  @@map("rooms")
+}
+
+// ─── Guest ────────────────────────────────────────────────────────────────────
+
+model Guest {
+  id              String       @id @default(uuid())
+  propertyId      String
+  firstName       String
+  lastName        String
+  email           String?
+  phone           String?
+  nationality     String?
+  dateOfBirth     DateTime?
+  idType          String?
+  idNumber        String?
+  idDocumentUrl   String?
+  loyaltyTier     LoyaltyTier  @default(BRONZE)
+  loyaltyPoints   Int          @default(0)
+  totalStays      Int          @default(0)
+  totalNights     Int          @default(0)
+  lifetimeValue   Decimal      @default(0) @db.Decimal(12, 2)
+  language        String       @default("en")
+  tags            String?      @db.LongText // JSON array
+  notes           String?
+  doNotDisturb    Boolean      @default(false)
+  marketingOptIn  Boolean      @default(true)
+  isVip           Boolean      @default(false)
+  lastStayAt      DateTime?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  property         Property         @relation(fields: [propertyId], references: [id])
+  reservations     Reservation[]
+  preferences      GuestPreference?
+  loyaltyTxns      LoyaltyTransaction[]
+
+  @@map("guests")
+}
+
+model GuestPreference {
+  id                   String  @id @default(uuid())
+  guestId              String  @unique
+  preferredRoomType    String?
+  preferredFloor       String?
+  pillowType           String?
+  dietaryRestrictions  String? @db.LongText // JSON array
+  smokingRoom          Boolean @default(false)
+  extraBed             Boolean @default(false)
+  earlyCheckIn         Boolean @default(false)
+  lateCheckOut         Boolean @default(false)
+  noDisturbBefore      String?
+  noDisturbAfter       String?
+  communicationChannel String  @default("email")
+  spokenLanguages      String? @db.LongText // JSON array
+
+  guest Guest @relation(fields: [guestId], references: [id], onDelete: Cascade)
+
+  @@map("guest_preferences")
+}
+
+model LoyaltyTransaction {
+  id          String   @id @default(uuid())
+  guestId     String
+  points      Int
+  type        String   // EARN | REDEEM | EXPIRE | ADJUST
+  description String
+  referenceId String?
+  createdAt   DateTime @default(now())
+
+  guest Guest @relation(fields: [guestId], references: [id])
+
+  @@map("loyalty_transactions")
+}
+
+// ─── Rate Plan ────────────────────────────────────────────────────────────────
+
+model RatePlan {
+  id           String       @id @default(uuid())
+  propertyId   String
+  name         String
+  code         String
+  type         RatePlanType @default(BAR)
+  description  String?
+  minStay      Int?
+  maxStay      Int?
+  isActive     Boolean      @default(true)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  property     Property       @relation(fields: [propertyId], references: [id])
+  items        RatePlanItem[]
+  reservations Reservation[]
+
+  @@unique([propertyId, code])
+  @@map("rate_plans")
+}
+
+model RatePlanItem {
+  id           String   @id @default(uuid())
+  ratePlanId   String
+  roomTypeId   String
+  date         DateTime @db.Date
+  ratePerNight Decimal  @db.Decimal(10, 2)
+  isLocked     Boolean  @default(false)
+  lockedAt     DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  ratePlan RatePlan @relation(fields: [ratePlanId], references: [id])
+  roomType RoomType @relation(fields: [roomTypeId], references: [id])
+
+  @@unique([ratePlanId, roomTypeId, date])
+  @@map("rate_plan_items")
+}
+
+// ─── Reservation ──────────────────────────────────────────────────────────────
+
+model Reservation {
+  id                 String            @id @default(uuid())
+  confirmationNumber String            @unique
+  propertyId         String
+  guestId            String
+  roomId             String?
+  roomTypeId         String
+  ratePlanId         String
+  checkIn            DateTime          @db.Date
+  checkOut           DateTime          @db.Date
+  nights             Int
+  adults             Int               @default(1)
+  children           Int               @default(0)
+  ratePerNight       Decimal           @db.Decimal(10, 2)
+  subTotal           Decimal           @db.Decimal(10, 2)
+  taxAmount          Decimal           @db.Decimal(10, 2)
+  totalAmount        Decimal           @db.Decimal(10, 2)
+  paidAmount         Decimal           @default(0) @db.Decimal(10, 2)
+  balanceDue         Decimal           @db.Decimal(10, 2)
+  status             ReservationStatus @default(CONFIRMED)
+  channel            BookingChannel    @default(DIRECT)
+  otaConfirmationNo  String?
+  specialRequests    String?
+  internalNotes      String?
+  checkedInAt        DateTime?
+  checkedOutAt       DateTime?
+  cancelledAt        DateTime?
+  cancellationReason String?
+  noShowAt           DateTime?
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+
+  property  Property          @relation(fields: [propertyId], references: [id])
+  guest     Guest             @relation(fields: [guestId], references: [id])
+  room      Room?             @relation(fields: [roomId], references: [id])
+  roomType  RoomType          @relation(fields: [roomTypeId], references: [id])
+  ratePlan  RatePlan          @relation(fields: [ratePlanId], references: [id])
+  extras    ReservationExtra[]
+  payments  Payment[]
+  folio     Folio?
+
+  @@index([propertyId, status])
+  @@index([propertyId, checkIn])
+  @@index([propertyId, checkOut])
+  @@map("reservations")
+}
+
+model ReservationExtra {
+  id            String  @id @default(uuid())
+  reservationId String
+  name          String
+  description   String?
+  price         Decimal @db.Decimal(10, 2)
+  quantity      Int     @default(1)
+  totalPrice    Decimal @db.Decimal(10, 2)
+
+  reservation Reservation @relation(fields: [reservationId], references: [id])
+
+  @@map("reservation_extras")
+}
+
+// ─── Payment / Folio ──────────────────────────────────────────────────────────
+
+model Payment {
+  id            String        @id @default(uuid())
+  reservationId String
+  amount        Decimal       @db.Decimal(10, 2)
+  method        PaymentMethod
+  status        PaymentStatus @default(PENDING)
+  reference     String?
+  notes         String?
+  processedAt   DateTime?
+  createdAt     DateTime      @default(now())
+
+  reservation Reservation @relation(fields: [reservationId], references: [id])
+
+  @@map("payments")
+}
+
+model Folio {
+  id            String   @id @default(uuid())
+  reservationId String   @unique
+  totalCharges  Decimal  @db.Decimal(10, 2)
+  totalPayments Decimal  @db.Decimal(10, 2)
+  balance       Decimal  @db.Decimal(10, 2)
+  isClosed      Boolean  @default(false)
+  closedAt      DateTime?
+  invoiceNo     String?
+  invoiceUrl    String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  reservation Reservation @relation(fields: [reservationId], references: [id])
+  charges     FolioCharge[]
+
+  @@map("folios")
+}
+
+model FolioCharge {
+  id          String   @id @default(uuid())
+  folioId     String
+  description String
+  amount      Decimal  @db.Decimal(10, 2)
+  quantity    Int      @default(1)
+  chargedAt   DateTime @default(now())
+  department  String   @default("ROOMS")
+
+  folio Folio @relation(fields: [folioId], references: [id])
+
+  @@map("folio_charges")
+}
+
+// ─── Housekeeping ─────────────────────────────────────────────────────────────
+
+model HousekeepingTask {
+  id                String       @id @default(uuid())
+  propertyId        String
+  roomId            String
+  taskType          TaskType
+  priority          TaskPriority @default(NORMAL)
+  status            TaskStatus   @default(PENDING)
+  assignedToId      String?
+  estimatedMinutes  Int          @default(30)
+  startedAt         DateTime?
+  completedAt       DateTime?
+  nextCheckInTime   DateTime?
+  notes             String?
+  photoUrls         String?      @db.LongText // JSON array
+  supervisorNotes   String?
+  scheduledDate     DateTime     @db.Date
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  property   Property @relation(fields: [propertyId], references: [id])
+  room       Room     @relation(fields: [roomId], references: [id])
+  assignedTo User?    @relation("AssignedHKTasks", fields: [assignedToId], references: [id])
+
+  @@index([propertyId, scheduledDate])
+  @@index([propertyId, status])
+  @@map("housekeeping_tasks")
+}
+
+// ─── Maintenance ──────────────────────────────────────────────────────────────
+
+model MaintenanceTicket {
+  id           String              @id @default(uuid())
+  propertyId   String
+  roomId       String?
+  title        String
+  description  String
+  priority     MaintenancePriority @default(NORMAL)
+  status       MaintenanceStatus   @default(OPEN)
+  assignedToId String?
+  reportedById String?
+  category     String?
+  estimatedCost Decimal?           @db.Decimal(10, 2)
+  actualCost   Decimal?            @db.Decimal(10, 2)
+  photoUrls    String?             @db.LongText // JSON array
+  resolvedAt   DateTime?
+  dueDate      DateTime?
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+
+  property   Property  @relation(fields: [propertyId], references: [id])
+  room       Room?     @relation(fields: [roomId], references: [id])
+  assignedTo User?     @relation("AssignedMaintenanceTasks", fields: [assignedToId], references: [id])
+
+  @@index([propertyId, status])
+  @@map("maintenance_tickets")
+}
+
+// ─── AI Alert ─────────────────────────────────────────────────────────────────
+
+model AIAlert {
+  id          String        @id @default(uuid())
+  propertyId  String
+  title       String
+  description String
+  severity    AlertSeverity
+  module      String
+  isRead      Boolean       @default(false)
+  readAt      DateTime?
+  actionUrl   String?
+  metadata    String?       @db.LongText // JSON object
+  createdAt   DateTime      @default(now())
+
+  property Property @relation(fields: [propertyId], references: [id])
+
+  @@index([propertyId, isRead])
+  @@map("ai_alerts")
+}
+
+// ─── Audit Log ────────────────────────────────────────────────────────────────
+
+model AuditLog {
+  id           String   @id @default(uuid())
+  propertyId   String
+  userId       String?
+  action       String
+  entity       String
+  entityId     String?
+  beforeState  String?  @db.LongText // JSON object
+  afterState   String?  @db.LongText // JSON object
+  ipAddress    String?
+  userAgent    String?
+  createdAt    DateTime @default(now())
+
+  property Property @relation(fields: [propertyId], references: [id])
+  user     User?    @relation(fields: [userId], references: [id])
+
+  @@index([propertyId, entity])
+  @@index([propertyId, createdAt])
+  @@map("audit_logs")
+}
+
+// ─── Promo Code ───────────────────────────────────────────────────────────────
+
+model PromoCode {
+  id            String       @id @default(uuid())
+  propertyId    String
+  code          String
+  discountType  DiscountType @default(PERCENT)
+  discountValue Decimal      @db.Decimal(10, 2)
+  isActive      Boolean      @default(true)
+  createdAt     DateTime     @default(now())
+
+  property Property @relation(fields: [propertyId], references: [id])
+
+  @@unique([propertyId, code])
+  @@map("promo_codes")
+}
