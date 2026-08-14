@@ -1,8 +1,21 @@
 import { PrismaService } from '@/prisma/prisma.service';
 import { CreateGuestDto, UpdateGuestDto, GuestPreferenceDto } from './dto/guest.dto';
 import { PaginationDto } from '@/common/dto/pagination.dto';
+export declare class GenerateCampaignDto {
+    segment: string;
+    goal?: string;
+}
+export declare class CreateCampaignDto {
+    name: string;
+    segment: string;
+    subject?: string;
+    body: string;
+    audienceCount?: number;
+}
 export declare class GuestsService {
     private readonly prisma;
+    private readonly ai;
+    private readonly aiModel;
     constructor(prisma: PrismaService);
     findAll(propertyId: string, query: PaginationDto): Promise<{
         data: ({
@@ -288,6 +301,76 @@ export declare class GuestsService {
         noDisturbBefore: string | null;
         noDisturbAfter: string | null;
     }>;
+    private scoreGuest;
+    insights(propertyId: string): Promise<{
+        summary: {
+            total: number;
+            high: number;
+            medium: number;
+            low: number;
+            new: number;
+            currentLtv: number;
+            projectedLtv: number;
+        };
+        atRisk: {
+            daysSince: number | null;
+            churnRisk: "HIGH" | "MEDIUM" | "LOW" | "NEW";
+            churnReason: string;
+            ltvProjection: number;
+            id: string;
+            name: string;
+            email: string | null;
+            tier: import(".prisma/client").$Enums.LoyaltyTier;
+            isVip: boolean;
+            totalStays: number;
+            lifetimeValue: number;
+            lastStayAt: Date | null;
+        }[];
+        topValue: {
+            daysSince: number | null;
+            churnRisk: "HIGH" | "MEDIUM" | "LOW" | "NEW";
+            churnReason: string;
+            ltvProjection: number;
+            id: string;
+            name: string;
+            email: string | null;
+            tier: import(".prisma/client").$Enums.LoyaltyTier;
+            isVip: boolean;
+            totalStays: number;
+            lifetimeValue: number;
+            lastStayAt: Date | null;
+        }[];
+    }>;
+    generateCampaign(propertyId: string, dto: GenerateCampaignDto): Promise<{
+        subject: string;
+        body: string;
+        audienceCount: number;
+        live: boolean;
+    }>;
+    createCampaign(propertyId: string, dto: CreateCampaignDto): Promise<{
+        name: string;
+        id: string;
+        propertyId: string;
+        createdAt: Date;
+        status: import(".prisma/client").$Enums.CampaignStatus;
+        channel: import(".prisma/client").$Enums.CampaignChannel;
+        segment: string;
+        subject: string | null;
+        body: string;
+        audienceCount: number;
+    }>;
+    listCampaigns(propertyId: string): Promise<{
+        name: string;
+        id: string;
+        propertyId: string;
+        createdAt: Date;
+        status: import(".prisma/client").$Enums.CampaignStatus;
+        channel: import(".prisma/client").$Enums.CampaignChannel;
+        segment: string;
+        subject: string | null;
+        body: string;
+        audienceCount: number;
+    }[]>;
     addLoyaltyPoints(guestId: string, points: number, description: string, referenceId?: string): Promise<{
         type: string;
         description: string;

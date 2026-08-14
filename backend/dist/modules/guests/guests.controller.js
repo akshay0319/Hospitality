@@ -31,6 +31,18 @@ let GuestsController = class GuestsController {
     segments(propertyId) {
         return this.guestsService.segments(propertyId);
     }
+    insights(propertyId) {
+        return this.guestsService.insights(propertyId);
+    }
+    listCampaigns(propertyId) {
+        return this.guestsService.listCampaigns(propertyId);
+    }
+    generateCampaign(propertyId, dto) {
+        return this.guestsService.generateCampaign(propertyId, dto);
+    }
+    createCampaign(propertyId, dto) {
+        return this.guestsService.createCampaign(propertyId, dto);
+    }
     findOne(id, propertyId) {
         return this.guestsService.findOne(id, propertyId);
     }
@@ -62,6 +74,40 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], GuestsController.prototype, "segments", null);
+__decorate([
+    (0, common_1.Get)('insights'),
+    openapi.ApiResponse({ status: 200 }),
+    __param(0, (0, current_user_decorator_1.CurrentUser)('propertyId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], GuestsController.prototype, "insights", null);
+__decorate([
+    (0, common_1.Get)('campaigns'),
+    openapi.ApiResponse({ status: 200 }),
+    __param(0, (0, current_user_decorator_1.CurrentUser)('propertyId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], GuestsController.prototype, "listCampaigns", null);
+__decorate([
+    (0, common_1.Post)('campaigns/generate'),
+    openapi.ApiResponse({ status: 201 }),
+    __param(0, (0, current_user_decorator_1.CurrentUser)('propertyId')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, guests_service_1.GenerateCampaignDto]),
+    __metadata("design:returntype", void 0)
+], GuestsController.prototype, "generateCampaign", null);
+__decorate([
+    (0, common_1.Post)('campaigns'),
+    openapi.ApiResponse({ status: 201 }),
+    __param(0, (0, current_user_decorator_1.CurrentUser)('propertyId')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, guests_service_1.CreateCampaignDto]),
+    __metadata("design:returntype", void 0)
+], GuestsController.prototype, "createCampaign", null);
 __decorate([
     (0, common_1.Get)(':id'),
     openapi.ApiResponse({ status: 200, type: Object }),

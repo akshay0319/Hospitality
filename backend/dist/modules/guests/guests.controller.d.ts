@@ -1,4 +1,4 @@
-import { GuestsService } from './guests.service';
+import { GuestsService, GenerateCampaignDto, CreateCampaignDto } from './guests.service';
 import { CreateGuestDto, UpdateGuestDto, GuestPreferenceDto } from './dto/guest.dto';
 import { PaginationDto } from '@/common/dto/pagination.dto';
 export declare class GuestsController {
@@ -66,6 +66,75 @@ export declare class GuestsController {
             count: number;
             description: string;
         }[];
+    }>;
+    insights(propertyId: string): Promise<{
+        summary: {
+            total: number;
+            high: number;
+            medium: number;
+            low: number;
+            new: number;
+            currentLtv: number;
+            projectedLtv: number;
+        };
+        atRisk: {
+            daysSince: number | null;
+            churnRisk: "HIGH" | "MEDIUM" | "LOW" | "NEW";
+            churnReason: string;
+            ltvProjection: number;
+            id: string;
+            name: string;
+            email: string | null;
+            tier: import(".prisma/client").$Enums.LoyaltyTier;
+            isVip: boolean;
+            totalStays: number;
+            lifetimeValue: number;
+            lastStayAt: Date | null;
+        }[];
+        topValue: {
+            daysSince: number | null;
+            churnRisk: "HIGH" | "MEDIUM" | "LOW" | "NEW";
+            churnReason: string;
+            ltvProjection: number;
+            id: string;
+            name: string;
+            email: string | null;
+            tier: import(".prisma/client").$Enums.LoyaltyTier;
+            isVip: boolean;
+            totalStays: number;
+            lifetimeValue: number;
+            lastStayAt: Date | null;
+        }[];
+    }>;
+    listCampaigns(propertyId: string): Promise<{
+        name: string;
+        id: string;
+        propertyId: string;
+        createdAt: Date;
+        status: import(".prisma/client").$Enums.CampaignStatus;
+        channel: import(".prisma/client").$Enums.CampaignChannel;
+        segment: string;
+        subject: string | null;
+        body: string;
+        audienceCount: number;
+    }[]>;
+    generateCampaign(propertyId: string, dto: GenerateCampaignDto): Promise<{
+        subject: string;
+        body: string;
+        audienceCount: number;
+        live: boolean;
+    }>;
+    createCampaign(propertyId: string, dto: CreateCampaignDto): Promise<{
+        name: string;
+        id: string;
+        propertyId: string;
+        createdAt: Date;
+        status: import(".prisma/client").$Enums.CampaignStatus;
+        channel: import(".prisma/client").$Enums.CampaignChannel;
+        segment: string;
+        subject: string | null;
+        body: string;
+        audienceCount: number;
     }>;
     findOne(id: string, propertyId: string): Promise<{
         reservations: ({

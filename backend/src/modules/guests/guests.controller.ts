@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Patch, Body, Param, Query, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
-import { GuestsService } from './guests.service';
+import { GuestsService, GenerateCampaignDto, CreateCampaignDto } from './guests.service';
 import { CreateGuestDto, UpdateGuestDto, GuestPreferenceDto } from './dto/guest.dto';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { PaginationDto } from '@/common/dto/pagination.dto';
@@ -21,6 +21,26 @@ export class GuestsController {
   @Get('segments')
   segments(@CurrentUser('propertyId') propertyId: string) {
     return this.guestsService.segments(propertyId);
+  }
+
+  @Get('insights')
+  insights(@CurrentUser('propertyId') propertyId: string) {
+    return this.guestsService.insights(propertyId);
+  }
+
+  @Get('campaigns')
+  listCampaigns(@CurrentUser('propertyId') propertyId: string) {
+    return this.guestsService.listCampaigns(propertyId);
+  }
+
+  @Post('campaigns/generate')
+  generateCampaign(@CurrentUser('propertyId') propertyId: string, @Body() dto: GenerateCampaignDto) {
+    return this.guestsService.generateCampaign(propertyId, dto);
+  }
+
+  @Post('campaigns')
+  createCampaign(@CurrentUser('propertyId') propertyId: string, @Body() dto: CreateCampaignDto) {
+    return this.guestsService.createCampaign(propertyId, dto);
   }
 
   @Get(':id')

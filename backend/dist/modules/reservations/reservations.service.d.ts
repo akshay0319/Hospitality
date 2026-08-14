@@ -109,9 +109,9 @@ export declare class ReservationsService {
                 createdAt: Date;
                 status: import(".prisma/client").$Enums.PaymentStatus;
                 notes: string | null;
+                method: import(".prisma/client").$Enums.PaymentMethod;
                 reservationId: string;
                 amount: import("@prisma/client/runtime/library").Decimal;
-                method: import(".prisma/client").$Enums.PaymentMethod;
                 reference: string | null;
                 processedAt: Date | null;
             }[];
@@ -284,9 +284,9 @@ export declare class ReservationsService {
             createdAt: Date;
             status: import(".prisma/client").$Enums.PaymentStatus;
             notes: string | null;
+            method: import(".prisma/client").$Enums.PaymentMethod;
             reservationId: string;
             amount: import("@prisma/client/runtime/library").Decimal;
-            method: import(".prisma/client").$Enums.PaymentMethod;
             reference: string | null;
             processedAt: Date | null;
         }[];

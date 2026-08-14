@@ -193,6 +193,7 @@ model Property {
   aiAlerts       AIAlert[]
   auditLogs      AuditLog[]
   promoCodes     PromoCode[]
+  campaigns      Campaign[]
 
   @@map("properties")
 }
@@ -627,4 +628,33 @@ model PromoCode {
 
   @@unique([propertyId, code])
   @@map("promo_codes")
+}
+
+enum CampaignChannel {
+  EMAIL
+  SMS
+  WHATSAPP
+}
+
+enum CampaignStatus {
+  DRAFT
+  SCHEDULED
+  SENT
+}
+
+model Campaign {
+  id            String          @id @default(uuid())
+  propertyId    String
+  name          String
+  segment       String
+  channel       CampaignChannel @default(EMAIL)
+  subject       String?
+  body          String          @db.LongText
+  audienceCount Int             @default(0)
+  status        CampaignStatus  @default(DRAFT)
+  createdAt     DateTime        @default(now())
+
+  property Property @relation(fields: [propertyId], references: [id])
+
+  @@map("campaigns")
 }
