@@ -29,6 +29,7 @@ const analytics_module_1 = require("./modules/analytics/analytics.module");
 const context_module_1 = require("./modules/context/context.module");
 const ai_module_1 = require("./modules/ai/ai.module");
 const booking_module_1 = require("./modules/booking/booking.module");
+const channels_module_1 = require("./modules/channels/channels.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -56,6 +57,7 @@ exports.AppModule = AppModule = __decorate([
             context_module_1.ContextModule,
             ai_module_1.AiModule,
             booking_module_1.BookingModule,
+            channels_module_1.ChannelsModule,
         ],
     })
 ], AppModule);

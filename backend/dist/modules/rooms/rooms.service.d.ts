@@ -174,6 +174,7 @@ export declare class RoomsService {
                 lastName: string;
             };
         } & {
+            channel: import(".prisma/client").$Enums.BookingChannel;
             id: string;
             propertyId: string;
             createdAt: Date;
@@ -195,7 +196,6 @@ export declare class RoomsService {
             totalAmount: import("@prisma/client/runtime/library").Decimal;
             paidAmount: import("@prisma/client/runtime/library").Decimal;
             balanceDue: import("@prisma/client/runtime/library").Decimal;
-            channel: import(".prisma/client").$Enums.BookingChannel;
             otaConfirmationNo: string | null;
             specialRequests: string | null;
             internalNotes: string | null;

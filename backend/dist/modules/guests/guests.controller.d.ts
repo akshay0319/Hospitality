@@ -107,12 +107,12 @@ export declare class GuestsController {
         }[];
     }>;
     listCampaigns(propertyId: string): Promise<{
+        channel: import(".prisma/client").$Enums.CampaignChannel;
         name: string;
         id: string;
         propertyId: string;
         createdAt: Date;
         status: import(".prisma/client").$Enums.CampaignStatus;
-        channel: import(".prisma/client").$Enums.CampaignChannel;
         segment: string;
         subject: string | null;
         body: string;
@@ -125,12 +125,12 @@ export declare class GuestsController {
         live: boolean;
     }>;
     createCampaign(propertyId: string, dto: CreateCampaignDto): Promise<{
+        channel: import(".prisma/client").$Enums.CampaignChannel;
         name: string;
         id: string;
         propertyId: string;
         createdAt: Date;
         status: import(".prisma/client").$Enums.CampaignStatus;
-        channel: import(".prisma/client").$Enums.CampaignChannel;
         segment: string;
         subject: string | null;
         body: string;
@@ -170,6 +170,7 @@ export declare class GuestsController {
                 maxStay: number | null;
             };
         } & {
+            channel: import(".prisma/client").$Enums.BookingChannel;
             id: string;
             propertyId: string;
             createdAt: Date;
@@ -191,7 +192,6 @@ export declare class GuestsController {
             totalAmount: import("@prisma/client/runtime/library").Decimal;
             paidAmount: import("@prisma/client/runtime/library").Decimal;
             balanceDue: import("@prisma/client/runtime/library").Decimal;
-            channel: import(".prisma/client").$Enums.BookingChannel;
             otaConfirmationNo: string | null;
             specialRequests: string | null;
             internalNotes: string | null;

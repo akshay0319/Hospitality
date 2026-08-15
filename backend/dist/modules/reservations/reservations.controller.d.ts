@@ -120,6 +120,7 @@ export declare class ReservationsController {
                 processedAt: Date | null;
             }[];
         } & {
+            channel: import(".prisma/client").$Enums.BookingChannel;
             id: string;
             propertyId: string;
             createdAt: Date;
@@ -141,7 +142,6 @@ export declare class ReservationsController {
             totalAmount: import("@prisma/client/runtime/library").Decimal;
             paidAmount: import("@prisma/client/runtime/library").Decimal;
             balanceDue: import("@prisma/client/runtime/library").Decimal;
-            channel: import(".prisma/client").$Enums.BookingChannel;
             otaConfirmationNo: string | null;
             specialRequests: string | null;
             internalNotes: string | null;
@@ -295,6 +295,7 @@ export declare class ReservationsController {
             processedAt: Date | null;
         }[];
     } & {
+        channel: import(".prisma/client").$Enums.BookingChannel;
         id: string;
         propertyId: string;
         createdAt: Date;
@@ -316,7 +317,6 @@ export declare class ReservationsController {
         totalAmount: import("@prisma/client/runtime/library").Decimal;
         paidAmount: import("@prisma/client/runtime/library").Decimal;
         balanceDue: import("@prisma/client/runtime/library").Decimal;
-        channel: import(".prisma/client").$Enums.BookingChannel;
         otaConfirmationNo: string | null;
         specialRequests: string | null;
         internalNotes: string | null;
@@ -395,6 +395,7 @@ export declare class ReservationsController {
             totalPrice: import("@prisma/client/runtime/library").Decimal;
         }[];
     } & {
+        channel: import(".prisma/client").$Enums.BookingChannel;
         id: string;
         propertyId: string;
         createdAt: Date;
@@ -416,7 +417,6 @@ export declare class ReservationsController {
         totalAmount: import("@prisma/client/runtime/library").Decimal;
         paidAmount: import("@prisma/client/runtime/library").Decimal;
         balanceDue: import("@prisma/client/runtime/library").Decimal;
-        channel: import(".prisma/client").$Enums.BookingChannel;
         otaConfirmationNo: string | null;
         specialRequests: string | null;
         internalNotes: string | null;
@@ -501,6 +501,7 @@ export declare class ReservationsController {
             maxStay: number | null;
         };
     } & {
+        channel: import(".prisma/client").$Enums.BookingChannel;
         id: string;
         propertyId: string;
         createdAt: Date;
@@ -522,7 +523,6 @@ export declare class ReservationsController {
         totalAmount: import("@prisma/client/runtime/library").Decimal;
         paidAmount: import("@prisma/client/runtime/library").Decimal;
         balanceDue: import("@prisma/client/runtime/library").Decimal;
-        channel: import(".prisma/client").$Enums.BookingChannel;
         otaConfirmationNo: string | null;
         specialRequests: string | null;
         internalNotes: string | null;
@@ -535,6 +535,7 @@ export declare class ReservationsController {
     cancel(id: string, propertyId: string, body: {
         reason?: string;
     }): Promise<{
+        channel: import(".prisma/client").$Enums.BookingChannel;
         id: string;
         propertyId: string;
         createdAt: Date;
@@ -556,7 +557,6 @@ export declare class ReservationsController {
         totalAmount: import("@prisma/client/runtime/library").Decimal;
         paidAmount: import("@prisma/client/runtime/library").Decimal;
         balanceDue: import("@prisma/client/runtime/library").Decimal;
-        channel: import(".prisma/client").$Enums.BookingChannel;
         otaConfirmationNo: string | null;
         specialRequests: string | null;
         internalNotes: string | null;
@@ -628,6 +628,7 @@ export declare class ReservationsController {
             lastStayAt: Date | null;
         };
     } & {
+        channel: import(".prisma/client").$Enums.BookingChannel;
         id: string;
         propertyId: string;
         createdAt: Date;
@@ -649,7 +650,6 @@ export declare class ReservationsController {
         totalAmount: import("@prisma/client/runtime/library").Decimal;
         paidAmount: import("@prisma/client/runtime/library").Decimal;
         balanceDue: import("@prisma/client/runtime/library").Decimal;
-        channel: import(".prisma/client").$Enums.BookingChannel;
         otaConfirmationNo: string | null;
         specialRequests: string | null;
         internalNotes: string | null;
@@ -734,6 +734,7 @@ export declare class ReservationsController {
             invoiceUrl: string | null;
         } | null;
     } & {
+        channel: import(".prisma/client").$Enums.BookingChannel;
         id: string;
         propertyId: string;
         createdAt: Date;
@@ -755,7 +756,6 @@ export declare class ReservationsController {
         totalAmount: import("@prisma/client/runtime/library").Decimal;
         paidAmount: import("@prisma/client/runtime/library").Decimal;
         balanceDue: import("@prisma/client/runtime/library").Decimal;
-        channel: import(".prisma/client").$Enums.BookingChannel;
         otaConfirmationNo: string | null;
         specialRequests: string | null;
         internalNotes: string | null;

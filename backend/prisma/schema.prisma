@@ -194,6 +194,7 @@ model Property {
   auditLogs      AuditLog[]
   promoCodes     PromoCode[]
   campaigns      Campaign[]
+  channels       Channel[]
 
   @@map("properties")
 }
@@ -657,4 +658,41 @@ model Campaign {
   property Property @relation(fields: [propertyId], references: [id])
 
   @@map("campaigns")
+}
+
+enum SyncDirection {
+  PUSH
+  PULL
+}
+
+model Channel {
+  id            String   @id @default(uuid())
+  propertyId    String
+  code          String
+  name          String
+  isConnected   Boolean  @default(false)
+  commissionPct Decimal  @default(0) @db.Decimal(5, 2)
+  autoSync      Boolean  @default(true)
+  lastSyncAt    DateTime?
+  createdAt     DateTime @default(now())
+
+  property  Property          @relation(fields: [propertyId], references: [id])
+  syncLogs  ChannelSyncLog[]
+
+  @@unique([propertyId, code])
+  @@map("channels")
+}
+
+model ChannelSyncLog {
+  id         String        @id @default(uuid())
+  propertyId String
+  channelId  String
+  direction  SyncDirection
+  summary    String
+  count      Int           @default(0)
+  createdAt  DateTime      @default(now())
+
+  channel Channel @relation(fields: [channelId], references: [id])
+
+  @@map("channel_sync_logs")
 }
