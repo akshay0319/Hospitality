@@ -30,4 +30,8 @@ export const housekeepingService = {
     const res = await api.get('/housekeeping/ai-optimize');
     return unwrap(res);
   },
+
+  async acceptAIPlan(): Promise<{ assigned: number; alreadyAssigned: number; perStaff: { name: string; minutes: number }[] }> {
+    return unwrap(await api.post('/housekeeping/accept-ai-plan', {}));
+  },
 };

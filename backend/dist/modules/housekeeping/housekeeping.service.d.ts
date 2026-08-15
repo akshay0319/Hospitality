@@ -282,4 +282,12 @@ export declare class HousekeepingService {
         }[];
         insight: string;
     }>;
+    acceptAIPlan(propertyId: string): Promise<{
+        assigned: number;
+        alreadyAssigned: number;
+        perStaff: {
+            name: string;
+            minutes: number;
+        }[];
+    }>;
 }

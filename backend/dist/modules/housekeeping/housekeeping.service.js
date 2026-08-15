@@ -189,6 +189,31 @@ let HousekeepingService = class HousekeepingService {
             insight: `${pendingTasks.length} tasks optimized. ${scored.filter((t) => t.score > 80).length} urgent rooms need attention before 2 PM.`,
         };
     }
+    async acceptAIPlan(propertyId) {
+        const { optimizedTasks } = await this.runAIOptimizer(propertyId);
+        const items = optimizedTasks;
+        const staff = await this.prisma.user.findMany({
+            where: { propertyId, role: { in: ['HOUSEKEEPER', 'HOUSEKEEPING_SUPERVISOR'] }, isActive: true },
+            select: { id: true, firstName: true, lastName: true },
+        });
+        if (!staff.length)
+            throw new common_1.BadRequestException('No active housekeeping staff to assign');
+        const load = Object.fromEntries(staff.map((s) => [s.id, 0]));
+        const toAssign = items.filter((t) => !t.assignedToId && t.status === 'PENDING');
+        for (const t of toAssign) {
+            const pick = staff.reduce((a, b) => (load[a.id] <= load[b.id] ? a : b));
+            load[pick.id] += t.estimatedMinutes ?? 30;
+            await this.prisma.housekeepingTask.update({ where: { id: t.id }, data: { assignedToId: pick.id } });
+        }
+        return {
+            assigned: toAssign.length,
+            alreadyAssigned: items.filter((t) => t.assignedToId).length,
+            perStaff: staff
+                .map((s) => ({ name: `${s.firstName} ${s.lastName}`, minutes: load[s.id] }))
+                .filter((s) => s.minutes > 0)
+                .sort((a, b) => b.minutes - a.minutes),
+        };
+    }
 };
 exports.HousekeepingService = HousekeepingService;
 exports.HousekeepingService = HousekeepingService = __decorate([

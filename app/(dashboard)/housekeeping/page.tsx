@@ -63,6 +63,16 @@ export default function HousekeepingPage() {
     onError: () => toast.error("Optimizer failed"),
   });
 
+  const acceptPlan = useMutation({
+    mutationFn: () => housekeepingService.acceptAIPlan(),
+    onSuccess: (d) => {
+      setInsight(d.assigned ? `AI plan applied — ${d.assigned} task(s) assigned across ${d.perStaff.length} staff. ${d.perStaff.map((s) => `${s.name}: ${s.minutes}m`).join(" · ")}` : "No unassigned tasks to allocate.");
+      toast.success(d.assigned ? `${d.assigned} tasks assigned` : "Nothing to assign");
+      invalidate();
+    },
+    onError: (e: unknown) => toast.error((e as { response?: { data?: { message?: string } } })?.response?.data?.message ?? "Could not apply plan"),
+  });
+
   const all = tasks ?? [];
   const byStatus = (s: string) => all.filter((t) => t.status === s);
 
@@ -88,6 +98,10 @@ export default function HousekeepingPage() {
                 <button onClick={() => optimize.mutate()} disabled={optimize.isPending}
                   className="flex items-center gap-1.5 rounded-md gradient-ai px-3 py-1.5 text-[12px] font-semibold text-white shadow-glow-ai hover:brightness-110 disabled:opacity-60">
                   {optimize.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />} Run optimizer
+                </button>
+                <button onClick={() => acceptPlan.mutate()} disabled={acceptPlan.isPending}
+                  className="flex items-center gap-1.5 rounded-md border border-[color:var(--ai)]/40 bg-[color:var(--ai-muted)]/20 px-3 py-1.5 text-[12px] font-semibold text-[color:var(--ai-hover)] hover:bg-[color:var(--ai-muted)]/40 disabled:opacity-60">
+                  {acceptPlan.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />} Accept AI plan
                 </button>
               </div>
             </div>

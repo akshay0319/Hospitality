@@ -29,6 +29,9 @@ let HousekeepingController = class HousekeepingController {
     runOptimizer(propertyId) {
         return this.hkService.runAIOptimizer(propertyId);
     }
+    acceptAIPlan(propertyId) {
+        return this.hkService.acceptAIPlan(propertyId);
+    }
     findAll(propertyId, date) {
         return this.hkService.findAll(propertyId, date);
     }
@@ -59,6 +62,14 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], HousekeepingController.prototype, "runOptimizer", null);
+__decorate([
+    (0, common_1.Post)('accept-ai-plan'),
+    openapi.ApiResponse({ status: 201 }),
+    __param(0, (0, current_user_decorator_1.CurrentUser)('propertyId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], HousekeepingController.prototype, "acceptAIPlan", null);
 __decorate([
     (0, common_1.Get)(),
     openapi.ApiResponse({ status: 200, type: [Object] }),

@@ -26,6 +26,14 @@ export declare class HousekeepingController {
         }[];
         insight: string;
     }>;
+    acceptAIPlan(propertyId: string): Promise<{
+        assigned: number;
+        alreadyAssigned: number;
+        perStaff: {
+            name: string;
+            minutes: number;
+        }[];
+    }>;
     findAll(propertyId: string, date?: string): Promise<({
         room: {
             roomType: {

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { IsEnum, IsOptional, IsString, IsDateString, IsInt } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { PrismaService } from '@/prisma/prisma.service';
@@ -152,6 +152,38 @@ export class HousekeepingService {
     return {
       optimizedTasks: scored.sort((a: { score: number }, b: { score: number }) => b.score - a.score),
       insight: `${pendingTasks.length} tasks optimized. ${scored.filter((t: { score: number }) => t.score > 80).length} urgent rooms need attention before 2 PM.`,
+    };
+  }
+
+  // Accept the AI plan: assign every unassigned pending task (highest-priority first)
+  // to the least-loaded housekeeper — a greedy load balance by estimated minutes.
+  async acceptAIPlan(propertyId: string) {
+    type OptTask = { id: string; assignedToId: string | null; status: string; estimatedMinutes: number | null };
+    const { optimizedTasks } = await this.runAIOptimizer(propertyId);
+    const items = optimizedTasks as unknown as OptTask[];
+
+    const staff = await this.prisma.user.findMany({
+      where: { propertyId, role: { in: ['HOUSEKEEPER', 'HOUSEKEEPING_SUPERVISOR'] }, isActive: true },
+      select: { id: true, firstName: true, lastName: true },
+    });
+    if (!staff.length) throw new BadRequestException('No active housekeeping staff to assign');
+
+    const load: Record<string, number> = Object.fromEntries(staff.map((s) => [s.id, 0]));
+    const toAssign = items.filter((t) => !t.assignedToId && t.status === 'PENDING');
+
+    for (const t of toAssign) {
+      const pick = staff.reduce((a, b) => (load[a.id] <= load[b.id] ? a : b));
+      load[pick.id] += t.estimatedMinutes ?? 30;
+      await this.prisma.housekeepingTask.update({ where: { id: t.id }, data: { assignedToId: pick.id } });
+    }
+
+    return {
+      assigned: toAssign.length,
+      alreadyAssigned: items.filter((t) => t.assignedToId).length,
+      perStaff: staff
+        .map((s) => ({ name: `${s.firstName} ${s.lastName}`, minutes: load[s.id] }))
+        .filter((s) => s.minutes > 0)
+        .sort((a, b) => b.minutes - a.minutes),
     };
   }
 }

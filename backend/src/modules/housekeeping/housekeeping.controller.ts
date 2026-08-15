@@ -21,6 +21,11 @@ export class HousekeepingController {
     return this.hkService.runAIOptimizer(propertyId);
   }
 
+  @Post('accept-ai-plan')
+  acceptAIPlan(@CurrentUser('propertyId') propertyId: string) {
+    return this.hkService.acceptAIPlan(propertyId);
+  }
+
   @Get()
   findAll(@CurrentUser('propertyId') propertyId: string, @Query('date') date?: string) {
     return this.hkService.findAll(propertyId, date);

@@ -39,7 +39,7 @@ This document reconciles the **14-phase enterprise vision** with our **current b
 | 4 | Channel Manager | 🟡 | 70% | **LIVE page** — 6 OTAs (Booking.com/Expedia/Airbnb/MMT/Goibibo/Agoda) connect/disconnect, **push rates+availability**, **pull reservations → land as REAL PMS bookings** (correct channel + OTA confirmation ref), rate-parity view, sync-activity log ✅. Mock sandbox — swaps to real OTA/aggregator API on partner approval |
 | 5 | CRM Platform | 🟡 | 80% | Guest profiles, preferences, 360° drawer, **live segments page**, **AI Guest Intelligence** (churn-risk + LTV projection scoring), **AI campaign builder** (OpenAI-drafted email copy per segment → saved drafts) ✅. Missing: real send (SMTP), scheduled sends, per-guest AI insights in drawer |
 | 6 | Revenue Management | 🟡 | 68% | Rate plans, live editable grid, AI recs apply/accept-all, Autopilot, **live demand forecast** (on-books + seasonality) ✅. Missing: ML forecast, nightly cron |
-| 7 | Housekeeping AI | 🟡 | 68% | Tasks + heuristic optimizer + **live board** (status advance, staff panel, room sync) ✅ + auto-task on checkout ✅. Missing: shift-aware ML optimizer, "accept AI plan" writeback |
+| 7 | Housekeeping AI | 🟡 | 85% | Tasks + heuristic optimizer + **live board** (status advance, staff panel, room sync) ✅ + auto-task on checkout ✅ + **"Accept AI plan"** one-click load-balanced assignment of pending tasks to staff ✅. Missing: shift-aware ML optimizer |
 | 8 | Maintenance AI | 🟡 | 40% | Tickets CRUD + dashboard + UI ✅. Missing: predictive/IoT |
 | 9 | Voice AI | 🟡 | 20% | **Browser voice** on Copilot — Web Speech STT (mic) + TTS (speaks answers), zero deps ✅. Missing: telephony (Twilio) + OpenAI Realtime for phone calls |
 | 10 | AI Concierge | 🔲 | 0% | — |
