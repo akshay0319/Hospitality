@@ -146,6 +146,7 @@ export declare class ReservationsService {
             cancelledAt: Date | null;
             cancellationReason: string | null;
             noShowAt: Date | null;
+            groupId: string | null;
         })[];
         meta: {
             total: number;
@@ -321,6 +322,7 @@ export declare class ReservationsService {
         cancelledAt: Date | null;
         cancellationReason: string | null;
         noShowAt: Date | null;
+        groupId: string | null;
     }>;
     create(propertyId: string, dto: CreateReservationDto): Promise<{
         roomType: {
@@ -421,6 +423,7 @@ export declare class ReservationsService {
         cancelledAt: Date | null;
         cancellationReason: string | null;
         noShowAt: Date | null;
+        groupId: string | null;
     }>;
     update(id: string, propertyId: string, dto: UpdateReservationDto): Promise<{
         roomType: {
@@ -527,6 +530,7 @@ export declare class ReservationsService {
         cancelledAt: Date | null;
         cancellationReason: string | null;
         noShowAt: Date | null;
+        groupId: string | null;
     }>;
     cancel(id: string, propertyId: string, reason?: string): Promise<{
         cancellation: {
@@ -564,6 +568,7 @@ export declare class ReservationsService {
         cancelledAt: Date | null;
         cancellationReason: string | null;
         noShowAt: Date | null;
+        groupId: string | null;
     }>;
     getCancellationPolicy(propertyId: string): Promise<{
         name: string;
@@ -700,6 +705,7 @@ export declare class ReservationsService {
         cancelledAt: Date | null;
         cancellationReason: string | null;
         noShowAt: Date | null;
+        groupId: string | null;
     }>;
     checkOut(id: string, propertyId: string, dto: CheckOutDto): Promise<{
         roomType: {
@@ -806,6 +812,7 @@ export declare class ReservationsService {
         cancelledAt: Date | null;
         cancellationReason: string | null;
         noShowAt: Date | null;
+        groupId: string | null;
     }>;
     getTodaySummary(propertyId: string): Promise<{
         arrivals: number;

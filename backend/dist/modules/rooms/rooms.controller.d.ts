@@ -80,6 +80,7 @@ export declare class RoomsController {
             cancelledAt: Date | null;
             cancellationReason: string | null;
             noShowAt: Date | null;
+            groupId: string | null;
         })[];
     }>;
     findOne(id: string, propertyId: string): Promise<{

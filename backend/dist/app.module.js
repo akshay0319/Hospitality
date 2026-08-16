@@ -31,6 +31,7 @@ const context_module_1 = require("./modules/context/context.module");
 const ai_module_1 = require("./modules/ai/ai.module");
 const booking_module_1 = require("./modules/booking/booking.module");
 const channels_module_1 = require("./modules/channels/channels.module");
+const groups_module_1 = require("./modules/groups/groups.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -60,6 +61,7 @@ exports.AppModule = AppModule = __decorate([
             ai_module_1.AiModule,
             booking_module_1.BookingModule,
             channels_module_1.ChannelsModule,
+            groups_module_1.GroupsModule,
         ],
     })
 ], AppModule);

@@ -144,6 +144,7 @@ export declare class GuestsService {
             cancelledAt: Date | null;
             cancellationReason: string | null;
             noShowAt: Date | null;
+            groupId: string | null;
         })[];
         preferences: {
             dietaryRestrictions: string | null;

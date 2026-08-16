@@ -150,6 +150,7 @@ export declare class ReservationsController {
             cancelledAt: Date | null;
             cancellationReason: string | null;
             noShowAt: Date | null;
+            groupId: string | null;
         })[];
         meta: {
             total: number;
@@ -349,6 +350,7 @@ export declare class ReservationsController {
         cancelledAt: Date | null;
         cancellationReason: string | null;
         noShowAt: Date | null;
+        groupId: string | null;
     }>;
     cancelQuote(id: string, propertyId: string): Promise<{
         free: boolean;
@@ -462,6 +464,7 @@ export declare class ReservationsController {
         cancelledAt: Date | null;
         cancellationReason: string | null;
         noShowAt: Date | null;
+        groupId: string | null;
     }>;
     update(id: string, propertyId: string, dto: UpdateReservationDto): Promise<{
         roomType: {
@@ -568,6 +571,7 @@ export declare class ReservationsController {
         cancelledAt: Date | null;
         cancellationReason: string | null;
         noShowAt: Date | null;
+        groupId: string | null;
     }>;
     cancel(id: string, propertyId: string, body: {
         reason?: string;
@@ -607,6 +611,7 @@ export declare class ReservationsController {
         cancelledAt: Date | null;
         cancellationReason: string | null;
         noShowAt: Date | null;
+        groupId: string | null;
     }>;
     checkIn(id: string, propertyId: string, dto: CheckInDto): Promise<{
         roomType: {
@@ -700,6 +705,7 @@ export declare class ReservationsController {
         cancelledAt: Date | null;
         cancellationReason: string | null;
         noShowAt: Date | null;
+        groupId: string | null;
     }>;
     checkOut(id: string, propertyId: string, dto: CheckOutDto): Promise<{
         roomType: {
@@ -806,5 +812,6 @@ export declare class ReservationsController {
         cancelledAt: Date | null;
         cancellationReason: string | null;
         noShowAt: Date | null;
+        groupId: string | null;
     }>;
 }

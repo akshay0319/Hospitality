@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutGrid, CalendarDays, CalendarRange, DoorOpen, Sparkles, Wrench,
-  TrendingUp, Globe, ShoppingBag,
+  TrendingUp, Globe, ShoppingBag, Users2,
   Users, HeartHandshake, MessageSquare, Star,
   Brain, Bot, Mic, ConciergeBell,
   BarChart3, Activity, PieChart,
@@ -24,6 +24,7 @@ const groups: { label: string; items: Item[]; ai?: boolean }[] = [
     items: [
       { title: "Dashboard", url: "/dashboard", icon: LayoutGrid },
       { title: "Reservations", url: "/reservations", icon: CalendarDays },
+      { title: "Groups", url: "/groups", icon: Users2 },
       { title: "Front Desk", url: "/front-desk", icon: DoorOpen },
       { title: "Inventory", url: "/inventory", icon: CalendarRange },
       { title: "Housekeeping", url: "/housekeeping", icon: Sparkles },

@@ -204,6 +204,7 @@ export declare class RoomsService {
             cancelledAt: Date | null;
             cancellationReason: string | null;
             noShowAt: Date | null;
+            groupId: string | null;
         })[];
     }>;
 }

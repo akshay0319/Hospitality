@@ -19,6 +19,7 @@ import { ContextModule } from './modules/context/context.module';
 import { AiModule } from './modules/ai/ai.module';
 import { BookingModule } from './modules/booking/booking.module';
 import { ChannelsModule } from './modules/channels/channels.module';
+import { GroupsModule } from './modules/groups/groups.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { ChannelsModule } from './modules/channels/channels.module';
     AiModule,
     BookingModule,
     ChannelsModule,
+    GroupsModule,
   ],
 })
 export class AppModule {}

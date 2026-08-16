@@ -198,6 +198,7 @@ model Property {
   cancellationPolicy CancellationPolicy?
   autopilotConfig    AutopilotConfig?
   autopilotRuns      AutopilotRun[]
+  groups             Group[]
 
   @@map("properties")
 }
@@ -431,6 +432,7 @@ model Reservation {
   cancelledAt        DateTime?
   cancellationReason String?
   noShowAt           DateTime?
+  groupId            String?
   createdAt          DateTime          @default(now())
   updatedAt          DateTime          @updatedAt
 
@@ -439,6 +441,7 @@ model Reservation {
   room      Room?             @relation(fields: [roomId], references: [id])
   roomType  RoomType          @relation(fields: [roomTypeId], references: [id])
   ratePlan  RatePlan          @relation(fields: [ratePlanId], references: [id])
+  group     Group?            @relation(fields: [groupId], references: [id])
   extras    ReservationExtra[]
   payments  Payment[]
   folio     Folio?
@@ -750,4 +753,30 @@ model AutopilotRun {
   property Property @relation(fields: [propertyId], references: [id])
 
   @@map("autopilot_runs")
+}
+
+enum GroupStatus {
+  INQUIRY
+  CONFIRMED
+  CANCELLED
+}
+
+model Group {
+  id           String      @id @default(uuid())
+  propertyId   String
+  name         String
+  contactName  String
+  contactEmail String?
+  contactPhone String?
+  checkIn      DateTime    @db.Date
+  checkOut     DateTime    @db.Date
+  status       GroupStatus @default(CONFIRMED)
+  notes        String?
+  createdAt    DateTime    @default(now())
+
+  property     Property      @relation(fields: [propertyId], references: [id])
+  reservations Reservation[]
+
+  @@index([propertyId])
+  @@map("groups")
 }
