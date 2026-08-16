@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { Building2, Shield, Plug, CreditCard, ChevronRight } from "lucide-react";
+import { Building2, Shield, Plug, CreditCard, ChevronRight, CalendarX } from "lucide-react";
 import { AppHeader } from "@/components/layout/header";
 
 const SETTINGS = [
   { href: "/settings/users", icon: Shield, title: "Users & Roles", desc: "Invite staff, assign roles, manage access", live: true, accent: "text-[color:var(--ai-hover)] bg-[color:var(--ai-muted)]/50" },
   { href: "/settings/property", icon: Building2, title: "Property Setup", desc: "Property details, check-in/out times, currency", live: true, accent: "text-primary bg-primary-muted/50" },
+  { href: "/settings/cancellation", icon: CalendarX, title: "Cancellation Policy", desc: "Free-cancellation window and penalty rules for refunds", live: true, accent: "text-warning bg-warning-muted/50" },
   { href: "/settings", icon: Plug, title: "Integrations", desc: "OTAs, payment gateways, and channel connections", live: false, accent: "text-info bg-info-muted/50" },
   { href: "/settings", icon: CreditCard, title: "Billing", desc: "Subscription plan, invoices, and payment method", live: false, accent: "text-success bg-success-muted/50" },
 ];

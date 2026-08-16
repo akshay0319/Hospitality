@@ -59,6 +59,16 @@ export class BookingController {
     return this.booking.getReservation(propertyId, confirmationNumber, email);
   }
 
+  @Get(':propertyId/reservation/:confirmationNumber/cancel-quote')
+  @ApiOperation({ summary: 'Guest self-service — preview refund/penalty before cancelling' })
+  cancelQuote(
+    @Param('propertyId') propertyId: string,
+    @Param('confirmationNumber') confirmationNumber: string,
+    @Query('email') email: string,
+  ) {
+    return this.booking.cancelQuote(propertyId, confirmationNumber, email);
+  }
+
   @Post(':propertyId/reservation/:confirmationNumber/cancel')
   @ApiOperation({ summary: 'Guest self-service — cancel a booking (email-guarded)' })
   cancelReservation(

@@ -195,6 +195,7 @@ model Property {
   promoCodes     PromoCode[]
   campaigns      Campaign[]
   channels       Channel[]
+  cancellationPolicy CancellationPolicy?
 
   @@map("properties")
 }
@@ -695,4 +696,25 @@ model ChannelSyncLog {
   channel Channel @relation(fields: [channelId], references: [id])
 
   @@map("channel_sync_logs")
+}
+
+enum CancellationPenaltyType {
+  NONE
+  FIRST_NIGHT
+  PERCENT
+  FULL
+}
+
+model CancellationPolicy {
+  id                    String                  @id @default(uuid())
+  propertyId            String                  @unique
+  name                  String                  @default("Standard")
+  freeCancellationHours Int                     @default(48)
+  penaltyType           CancellationPenaltyType @default(FIRST_NIGHT)
+  penaltyValue          Decimal                 @default(0) @db.Decimal(5, 2)
+  createdAt             DateTime                @default(now())
+
+  property Property @relation(fields: [propertyId], references: [id])
+
+  @@map("cancellation_policies")
 }

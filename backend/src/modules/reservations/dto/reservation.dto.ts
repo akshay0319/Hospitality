@@ -3,7 +3,14 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
-import { BookingChannel, ReservationStatus } from '@prisma/client';
+import { BookingChannel, ReservationStatus, CancellationPenaltyType } from '@prisma/client';
+
+export class UpdateCancellationPolicyDto {
+  @ApiPropertyOptional() @IsOptional() @IsString() name?: string;
+  @ApiPropertyOptional() @IsOptional() @IsInt() @Min(0) freeCancellationHours?: number;
+  @ApiPropertyOptional({ enum: CancellationPenaltyType }) @IsOptional() @IsEnum(CancellationPenaltyType) penaltyType?: CancellationPenaltyType;
+  @ApiPropertyOptional() @IsOptional() @IsNumber() @Min(0) penaltyValue?: number;
+}
 
 export class CreateReservationExtraDto {
   @ApiProperty() @IsString() name: string;

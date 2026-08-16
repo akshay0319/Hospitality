@@ -1,4 +1,10 @@
-import { BookingChannel, ReservationStatus } from '@prisma/client';
+import { BookingChannel, ReservationStatus, CancellationPenaltyType } from '@prisma/client';
+export declare class UpdateCancellationPolicyDto {
+    name?: string;
+    freeCancellationHours?: number;
+    penaltyType?: CancellationPenaltyType;
+    penaltyValue?: number;
+}
 export declare class CreateReservationExtraDto {
     name: string;
     description?: string;

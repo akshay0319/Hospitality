@@ -36,6 +36,13 @@ export default function ManageBookingPage() {
     onError: () => { setBooking(null); toast.error("Booking not found. Check the confirmation number and email."); },
   });
 
+  const quote = useQuery({
+    queryKey: ["cancel-quote", propertyId, booking?.confirmationNumber, booking?.cancellable],
+    queryFn: () => bookingService.cancelQuote(propertyId, conf.trim(), email.trim()),
+    enabled: !!booking?.cancellable,
+    retry: false,
+  });
+
   const cancel = useMutation({
     mutationFn: () => bookingService.cancelReservation(propertyId, conf.trim(), email.trim()),
     onSuccess: (b) => { setBooking(b); toast.success("Booking cancelled."); },
@@ -101,12 +108,31 @@ export default function ManageBookingPage() {
 
             <div className="mt-5 border-t border-border pt-4">
               {booking.cancellable ? (
-                <button
-                  onClick={() => { if (confirm("Cancel this booking? This can't be undone.")) cancel.mutate(); }}
-                  disabled={cancel.isPending}
-                  className="flex h-10 items-center gap-2 rounded-lg border border-danger/40 px-4 text-[13px] font-semibold text-danger hover:bg-danger/10 disabled:opacity-50">
-                  {cancel.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <XCircle className="h-4 w-4" />} Cancel booking
-                </button>
+                <div className="space-y-3">
+                  {quote.data && (
+                    <div className="rounded-lg border border-border bg-background/40 px-3 py-2.5 text-[12px]">
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground">Cancellation policy</span>
+                        <span className="text-foreground">{quote.data.policy.name}</span>
+                      </div>
+                      <div className="mt-1 flex items-center justify-between">
+                        <span className="text-muted-foreground">Refund if cancelled now</span>
+                        <span className="font-semibold text-success">{inr(quote.data.refund)}</span>
+                      </div>
+                      <div className="mt-0.5 text-[11px] text-tertiary">
+                        {quote.data.free
+                          ? "Within the free cancellation window — full refund."
+                          : `A penalty of ${inr(quote.data.fee)} applies (free until ${quote.data.policy.freeCancellationHours}h before check-in).`}
+                      </div>
+                    </div>
+                  )}
+                  <button
+                    onClick={() => { if (confirm(`Cancel this booking?${quote.data ? ` You'll be refunded ${inr(quote.data.refund)}.` : ""} This can't be undone.`)) cancel.mutate(); }}
+                    disabled={cancel.isPending}
+                    className="flex h-10 items-center gap-2 rounded-lg border border-danger/40 px-4 text-[13px] font-semibold text-danger hover:bg-danger/10 disabled:opacity-50">
+                    {cancel.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <XCircle className="h-4 w-4" />} Cancel booking
+                  </button>
+                </div>
               ) : booking.status === "CANCELLED" ? (
                 <p className="flex items-center gap-1.5 text-[13px] text-danger"><XCircle className="h-4 w-4" /> This booking has been cancelled.</p>
               ) : (

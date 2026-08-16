@@ -183,6 +183,19 @@ export declare class BookingService {
         }[];
         cancellable: boolean;
     }>;
+    cancelQuote(propertyId: string, confirmationNumber: string, email: string): Promise<{
+        free: boolean;
+        fee: number;
+        refund: number;
+        hoursUntil: number;
+        paid: number;
+        policy: {
+            name: string;
+            freeCancellationHours: number;
+            penaltyType: import(".prisma/client").$Enums.CancellationPenaltyType;
+            penaltyValue: number;
+        };
+    }>;
     cancelReservation(propertyId: string, confirmationNumber: string, email: string, reason?: string): Promise<{
         confirmationNumber: string;
         status: import(".prisma/client").$Enums.ReservationStatus;

@@ -4,7 +4,8 @@ import { AuthGuard } from '@nestjs/passport';
 import { ReservationsService } from './reservations.service';
 import {
   CreateReservationDto, UpdateReservationDto,
-  CheckInDto, CheckOutDto, AvailabilityQueryDto, ReservationFilterDto
+  CheckInDto, CheckOutDto, AvailabilityQueryDto, ReservationFilterDto,
+  UpdateCancellationPolicyDto,
 } from './dto/reservation.dto';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 
@@ -33,9 +34,27 @@ export class ReservationsController {
     return this.reservationsService.findAll(propertyId, query);
   }
 
+  @Get('cancellation-policy')
+  @ApiOperation({ summary: 'Get the property cancellation policy' })
+  getPolicy(@CurrentUser('propertyId') propertyId: string) {
+    return this.reservationsService.getCancellationPolicy(propertyId);
+  }
+
+  @Patch('cancellation-policy')
+  @ApiOperation({ summary: 'Update the property cancellation policy' })
+  updatePolicy(@CurrentUser('propertyId') propertyId: string, @Body() dto: UpdateCancellationPolicyDto) {
+    return this.reservationsService.updateCancellationPolicy(propertyId, dto);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string, @CurrentUser('propertyId') propertyId: string) {
     return this.reservationsService.findOne(id, propertyId);
+  }
+
+  @Get(':id/cancel-quote')
+  @ApiOperation({ summary: 'Preview the refund/penalty if this reservation is cancelled now' })
+  cancelQuote(@Param('id') id: string, @CurrentUser('propertyId') propertyId: string) {
+    return this.reservationsService.cancelQuote(id, propertyId);
   }
 
   @Post()

@@ -5,6 +5,11 @@ export interface ReservationListParams {
   status?: string; checkIn?: string; checkOut?: string;
 }
 
+export interface CancellationPolicy {
+  name: string; freeCancellationHours: number;
+  penaltyType: 'NONE' | 'FIRST_NIGHT' | 'PERCENT' | 'FULL'; penaltyValue: number;
+}
+
 export const reservationsService = {
   async findAll(params?: ReservationListParams) {
     const res = await api.get('/reservations', { params });
@@ -48,6 +53,16 @@ export const reservationsService = {
 
   async getTodaySummary() {
     const res = await api.get('/reservations/today');
+    return unwrap(res);
+  },
+
+  async getCancellationPolicy(): Promise<CancellationPolicy> {
+    const res = await api.get('/reservations/cancellation-policy');
+    return unwrap(res);
+  },
+
+  async updateCancellationPolicy(dto: Partial<CancellationPolicy>): Promise<CancellationPolicy> {
+    const res = await api.patch('/reservations/cancellation-policy', dto);
     return unwrap(res);
   },
 };

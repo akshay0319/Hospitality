@@ -9,12 +9,44 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ReservationFilterDto = exports.AvailabilityQueryDto = exports.CheckOutDto = exports.CheckInDto = exports.UpdateReservationDto = exports.CreateReservationDto = exports.CreateReservationExtraDto = void 0;
+exports.ReservationFilterDto = exports.AvailabilityQueryDto = exports.CheckOutDto = exports.CheckInDto = exports.UpdateReservationDto = exports.CreateReservationDto = exports.CreateReservationExtraDto = exports.UpdateCancellationPolicyDto = void 0;
 const openapi = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
 const class_transformer_1 = require("class-transformer");
 const swagger_1 = require("@nestjs/swagger");
 const client_1 = require("@prisma/client");
+class UpdateCancellationPolicyDto {
+    static _OPENAPI_METADATA_FACTORY() {
+        return { name: { required: false, type: () => String }, freeCancellationHours: { required: false, type: () => Number, minimum: 0 }, penaltyType: { required: false, type: () => Object }, penaltyValue: { required: false, type: () => Number, minimum: 0 } };
+    }
+}
+exports.UpdateCancellationPolicyDto = UpdateCancellationPolicyDto;
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)(),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], UpdateCancellationPolicyDto.prototype, "name", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)(),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsInt)(),
+    (0, class_validator_1.Min)(0),
+    __metadata("design:type", Number)
+], UpdateCancellationPolicyDto.prototype, "freeCancellationHours", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ enum: client_1.CancellationPenaltyType }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsEnum)(client_1.CancellationPenaltyType),
+    __metadata("design:type", String)
+], UpdateCancellationPolicyDto.prototype, "penaltyType", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)(),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.Min)(0),
+    __metadata("design:type", Number)
+], UpdateCancellationPolicyDto.prototype, "penaltyValue", void 0);
 class CreateReservationExtraDto {
     static _OPENAPI_METADATA_FACTORY() {
         return { name: { required: true, type: () => String }, description: { required: false, type: () => String }, price: { required: true, type: () => Number }, quantity: { required: true, type: () => Number, minimum: 1 } };

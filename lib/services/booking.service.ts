@@ -25,6 +25,10 @@ export interface ManagedBooking {
   extras: { name: string; price: number; quantity: number }[];
   cancellable: boolean;
 }
+export interface CancelQuote {
+  policy: { name: string; freeCancellationHours: number; penaltyType: string; penaltyValue: number };
+  free: boolean; fee: number; refund: number; hoursUntil: number; paid: number;
+}
 export interface PromoPreview { valid: boolean; code?: string; discount?: number; label?: string }
 export interface PaymentOrder { mock: boolean; amount: number; orderId?: string; keyId?: string; currency?: string }
 export interface OrderInput { roomTypeId: string; checkIn: string; checkOut: string; addons?: { name: string; price: number; quantity: number }[]; promoCode?: string }
@@ -51,6 +55,9 @@ export const bookingService = {
   },
   async getReservation(propertyId: string, confirmationNumber: string, email: string): Promise<ManagedBooking> {
     return unwrap<ManagedBooking>(await api.get(`/booking/${propertyId}/reservation/${encodeURIComponent(confirmationNumber)}`, { params: { email } }));
+  },
+  async cancelQuote(propertyId: string, confirmationNumber: string, email: string): Promise<CancelQuote> {
+    return unwrap<CancelQuote>(await api.get(`/booking/${propertyId}/reservation/${encodeURIComponent(confirmationNumber)}/cancel-quote`, { params: { email } }));
   },
   async cancelReservation(propertyId: string, confirmationNumber: string, email: string, reason?: string): Promise<ManagedBooking> {
     return unwrap<ManagedBooking>(await api.post(`/booking/${propertyId}/reservation/${encodeURIComponent(confirmationNumber)}/cancel`, { email, reason }));

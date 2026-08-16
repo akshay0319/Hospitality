@@ -33,8 +33,17 @@ let ReservationsController = class ReservationsController {
     findAll(propertyId, query) {
         return this.reservationsService.findAll(propertyId, query);
     }
+    getPolicy(propertyId) {
+        return this.reservationsService.getCancellationPolicy(propertyId);
+    }
+    updatePolicy(propertyId, dto) {
+        return this.reservationsService.updateCancellationPolicy(propertyId, dto);
+    }
     findOne(id, propertyId) {
         return this.reservationsService.findOne(id, propertyId);
+    }
+    cancelQuote(id, propertyId) {
+        return this.reservationsService.cancelQuote(id, propertyId);
     }
     create(propertyId, dto) {
         return this.reservationsService.create(propertyId, dto);
@@ -83,6 +92,25 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], ReservationsController.prototype, "findAll", null);
 __decorate([
+    (0, common_1.Get)('cancellation-policy'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get the property cancellation policy' }),
+    openapi.ApiResponse({ status: 200, type: Object }),
+    __param(0, (0, current_user_decorator_1.CurrentUser)('propertyId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], ReservationsController.prototype, "getPolicy", null);
+__decorate([
+    (0, common_1.Patch)('cancellation-policy'),
+    (0, swagger_1.ApiOperation)({ summary: 'Update the property cancellation policy' }),
+    openapi.ApiResponse({ status: 200 }),
+    __param(0, (0, current_user_decorator_1.CurrentUser)('propertyId')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, reservation_dto_1.UpdateCancellationPolicyDto]),
+    __metadata("design:returntype", void 0)
+], ReservationsController.prototype, "updatePolicy", null);
+__decorate([
     (0, common_1.Get)(':id'),
     openapi.ApiResponse({ status: 200, type: Object }),
     __param(0, (0, common_1.Param)('id')),
@@ -91,6 +119,16 @@ __decorate([
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", void 0)
 ], ReservationsController.prototype, "findOne", null);
+__decorate([
+    (0, common_1.Get)(':id/cancel-quote'),
+    (0, swagger_1.ApiOperation)({ summary: 'Preview the refund/penalty if this reservation is cancelled now' }),
+    openapi.ApiResponse({ status: 200 }),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, current_user_decorator_1.CurrentUser)('propertyId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:returntype", void 0)
+], ReservationsController.prototype, "cancelQuote", null);
 __decorate([
     (0, common_1.Post)(),
     (0, swagger_1.ApiOperation)({ summary: 'Create a new reservation' }),

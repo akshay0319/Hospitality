@@ -270,14 +270,76 @@ let ReservationsService = class ReservationsService {
         if ([client_1.ReservationStatus.CANCELLED, client_1.ReservationStatus.CHECKED_OUT].includes(res.status)) {
             throw new common_1.BadRequestException('Reservation is already closed');
         }
-        return this.prisma.reservation.update({
+        const policy = await this.getCancellationPolicy(propertyId);
+        const q = this.computeRefund(res, policy);
+        const updated = await this.prisma.reservation.update({
             where: { id },
             data: {
                 status: client_1.ReservationStatus.CANCELLED,
                 cancelledAt: new Date(),
                 cancellationReason: reason ?? 'Guest request',
+                paidAmount: q.fee,
+                balanceDue: 0,
             },
         });
+        if (q.refund > 0) {
+            await this.prisma.payment.create({
+                data: {
+                    reservationId: id, amount: q.refund, method: 'CARD', status: 'REFUNDED',
+                    reference: `REFUND-${res.confirmationNumber}`, processedAt: new Date(),
+                    notes: q.free ? 'Full refund — free cancellation window' : `Refund after ${policy.penaltyType} penalty (₹${q.fee})`,
+                },
+            });
+        }
+        return { ...updated, cancellation: { fee: q.fee, refund: q.refund, freeCancellation: q.free } };
+    }
+    async getCancellationPolicy(propertyId) {
+        const p = await this.prisma.cancellationPolicy.findUnique({ where: { propertyId } });
+        return p ?? { propertyId, name: 'Standard', freeCancellationHours: 48, penaltyType: 'FIRST_NIGHT', penaltyValue: 0 };
+    }
+    async updateCancellationPolicy(propertyId, dto) {
+        return this.prisma.cancellationPolicy.upsert({
+            where: { propertyId },
+            create: {
+                propertyId,
+                name: dto.name ?? 'Standard',
+                freeCancellationHours: dto.freeCancellationHours ?? 48,
+                penaltyType: (dto.penaltyType ?? 'FIRST_NIGHT'),
+                penaltyValue: dto.penaltyValue ?? 0,
+            },
+            update: {
+                ...(dto.name !== undefined && { name: dto.name }),
+                ...(dto.freeCancellationHours !== undefined && { freeCancellationHours: dto.freeCancellationHours }),
+                ...(dto.penaltyType !== undefined && { penaltyType: dto.penaltyType }),
+                ...(dto.penaltyValue !== undefined && { penaltyValue: dto.penaltyValue }),
+            },
+        });
+    }
+    computeRefund(res, policy) {
+        const paid = Number(res.paidAmount);
+        const total = Number(res.totalAmount);
+        const firstNight = Number(res.ratePerNight);
+        const hoursUntil = (new Date(res.checkIn).getTime() - Date.now()) / 3_600_000;
+        const free = hoursUntil >= policy.freeCancellationHours;
+        let fee = 0;
+        if (!free) {
+            if (policy.penaltyType === 'FIRST_NIGHT')
+                fee = Math.min(firstNight, total);
+            else if (policy.penaltyType === 'PERCENT')
+                fee = Math.round((total * Number(policy.penaltyValue)) / 100);
+            else if (policy.penaltyType === 'FULL')
+                fee = total;
+        }
+        fee = Math.min(fee, paid);
+        return { free, fee, refund: Math.max(0, paid - fee), hoursUntil: Math.round(hoursUntil), paid };
+    }
+    async cancelQuote(id, propertyId) {
+        const res = await this.findOne(id, propertyId);
+        const policy = await this.getCancellationPolicy(propertyId);
+        return {
+            policy: { name: policy.name, freeCancellationHours: policy.freeCancellationHours, penaltyType: policy.penaltyType, penaltyValue: Number(policy.penaltyValue) },
+            ...this.computeRefund(res, policy),
+        };
     }
     async checkIn(id, propertyId, dto) {
         const res = await this.findOne(id, propertyId);

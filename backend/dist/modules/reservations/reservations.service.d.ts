@@ -529,6 +529,11 @@ export declare class ReservationsService {
         noShowAt: Date | null;
     }>;
     cancel(id: string, propertyId: string, reason?: string): Promise<{
+        cancellation: {
+            fee: number;
+            refund: number;
+            freeCancellation: boolean;
+        };
         channel: import(".prisma/client").$Enums.BookingChannel;
         id: string;
         propertyId: string;
@@ -559,6 +564,49 @@ export declare class ReservationsService {
         cancelledAt: Date | null;
         cancellationReason: string | null;
         noShowAt: Date | null;
+    }>;
+    getCancellationPolicy(propertyId: string): Promise<{
+        name: string;
+        id: string;
+        propertyId: string;
+        createdAt: Date;
+        freeCancellationHours: number;
+        penaltyType: import(".prisma/client").$Enums.CancellationPenaltyType;
+        penaltyValue: import("@prisma/client/runtime/library").Decimal;
+    } | {
+        propertyId: string;
+        name: string;
+        freeCancellationHours: number;
+        penaltyType: "FIRST_NIGHT";
+        penaltyValue: number;
+    }>;
+    updateCancellationPolicy(propertyId: string, dto: {
+        name?: string;
+        freeCancellationHours?: number;
+        penaltyType?: 'NONE' | 'FIRST_NIGHT' | 'PERCENT' | 'FULL';
+        penaltyValue?: number;
+    }): Promise<{
+        name: string;
+        id: string;
+        propertyId: string;
+        createdAt: Date;
+        freeCancellationHours: number;
+        penaltyType: import(".prisma/client").$Enums.CancellationPenaltyType;
+        penaltyValue: import("@prisma/client/runtime/library").Decimal;
+    }>;
+    private computeRefund;
+    cancelQuote(id: string, propertyId: string): Promise<{
+        free: boolean;
+        fee: number;
+        refund: number;
+        hoursUntil: number;
+        paid: number;
+        policy: {
+            name: string;
+            freeCancellationHours: number;
+            penaltyType: import(".prisma/client").$Enums.CancellationPenaltyType;
+            penaltyValue: number;
+        };
     }>;
     checkIn(id: string, propertyId: string, dto: CheckInDto): Promise<{
         roomType: {

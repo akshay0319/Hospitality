@@ -39,6 +39,9 @@ let BookingController = class BookingController {
     getReservation(propertyId, confirmationNumber, email) {
         return this.booking.getReservation(propertyId, confirmationNumber, email);
     }
+    cancelQuote(propertyId, confirmationNumber, email) {
+        return this.booking.cancelQuote(propertyId, confirmationNumber, email);
+    }
     cancelReservation(propertyId, confirmationNumber, dto) {
         return this.booking.cancelReservation(propertyId, confirmationNumber, dto.email, dto.reason);
     }
@@ -109,6 +112,17 @@ __decorate([
     __metadata("design:paramtypes", [String, String, String]),
     __metadata("design:returntype", void 0)
 ], BookingController.prototype, "getReservation", null);
+__decorate([
+    (0, common_1.Get)(':propertyId/reservation/:confirmationNumber/cancel-quote'),
+    (0, swagger_1.ApiOperation)({ summary: 'Guest self-service — preview refund/penalty before cancelling' }),
+    openapi.ApiResponse({ status: 200 }),
+    __param(0, (0, common_1.Param)('propertyId')),
+    __param(1, (0, common_1.Param)('confirmationNumber')),
+    __param(2, (0, common_1.Query)('email')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, String]),
+    __metadata("design:returntype", void 0)
+], BookingController.prototype, "cancelQuote", null);
 __decorate([
     (0, common_1.Post)(':propertyId/reservation/:confirmationNumber/cancel'),
     (0, swagger_1.ApiOperation)({ summary: 'Guest self-service — cancel a booking (email-guarded)' }),

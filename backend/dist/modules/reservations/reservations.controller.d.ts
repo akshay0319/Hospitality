@@ -1,5 +1,5 @@
 import { ReservationsService } from './reservations.service';
-import { CreateReservationDto, UpdateReservationDto, CheckInDto, CheckOutDto, AvailabilityQueryDto, ReservationFilterDto } from './dto/reservation.dto';
+import { CreateReservationDto, UpdateReservationDto, CheckInDto, CheckOutDto, AvailabilityQueryDto, ReservationFilterDto, UpdateCancellationPolicyDto } from './dto/reservation.dto';
 export declare class ReservationsController {
     private readonly reservationsService;
     constructor(reservationsService: ReservationsService);
@@ -159,6 +159,30 @@ export declare class ReservationsController {
             hasNextPage: boolean;
             hasPrevPage: boolean;
         };
+    }>;
+    getPolicy(propertyId: string): Promise<{
+        name: string;
+        id: string;
+        propertyId: string;
+        createdAt: Date;
+        freeCancellationHours: number;
+        penaltyType: import(".prisma/client").$Enums.CancellationPenaltyType;
+        penaltyValue: import("@prisma/client/runtime/library").Decimal;
+    } | {
+        propertyId: string;
+        name: string;
+        freeCancellationHours: number;
+        penaltyType: "FIRST_NIGHT";
+        penaltyValue: number;
+    }>;
+    updatePolicy(propertyId: string, dto: UpdateCancellationPolicyDto): Promise<{
+        name: string;
+        id: string;
+        propertyId: string;
+        createdAt: Date;
+        freeCancellationHours: number;
+        penaltyType: import(".prisma/client").$Enums.CancellationPenaltyType;
+        penaltyValue: import("@prisma/client/runtime/library").Decimal;
     }>;
     findOne(id: string, propertyId: string): Promise<{
         roomType: {
@@ -325,6 +349,19 @@ export declare class ReservationsController {
         cancelledAt: Date | null;
         cancellationReason: string | null;
         noShowAt: Date | null;
+    }>;
+    cancelQuote(id: string, propertyId: string): Promise<{
+        free: boolean;
+        fee: number;
+        refund: number;
+        hoursUntil: number;
+        paid: number;
+        policy: {
+            name: string;
+            freeCancellationHours: number;
+            penaltyType: import(".prisma/client").$Enums.CancellationPenaltyType;
+            penaltyValue: number;
+        };
     }>;
     create(propertyId: string, dto: CreateReservationDto): Promise<{
         roomType: {
@@ -535,6 +572,11 @@ export declare class ReservationsController {
     cancel(id: string, propertyId: string, body: {
         reason?: string;
     }): Promise<{
+        cancellation: {
+            fee: number;
+            refund: number;
+            freeCancellation: boolean;
+        };
         channel: import(".prisma/client").$Enums.BookingChannel;
         id: string;
         propertyId: string;

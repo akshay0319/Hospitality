@@ -384,6 +384,12 @@ let BookingService = class BookingService {
             throw new common_1.BadRequestException('Email is required');
         return this.publicView(await this.findGuarded(propertyId, confirmationNumber, email));
     }
+    async cancelQuote(propertyId, confirmationNumber, email) {
+        if (!email?.trim())
+            throw new common_1.BadRequestException('Email is required');
+        const res = await this.findGuarded(propertyId, confirmationNumber, email);
+        return this.reservations.cancelQuote(res.id, propertyId);
+    }
     async cancelReservation(propertyId, confirmationNumber, email, reason) {
         if (!email?.trim())
             throw new common_1.BadRequestException('Email is required');
