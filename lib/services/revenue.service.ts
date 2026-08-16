@@ -39,9 +39,17 @@ export const revenueService = {
     return unwrap(res);
   },
 
-  async runAutopilot(): Promise<{ applied: number; skippedLocked: number; skippedSmall: number; total: number }> {
+  async runAutopilot(): Promise<{ applied: number; skippedLocked: number; skippedSmall: number; total: number; summary?: string }> {
     const res = await api.post('/revenue/autopilot', {});
     return unwrap(res);
+  },
+
+  async getAutopilotStatus(): Promise<AutopilotStatus> {
+    return unwrap<AutopilotStatus>(await api.get('/revenue/autopilot/status'));
+  },
+
+  async toggleAutopilot(enabled: boolean): Promise<{ enabled: boolean }> {
+    return unwrap<{ enabled: boolean }>(await api.post('/revenue/autopilot/toggle', { enabled }));
   },
 
   async getForecast(days = 14): Promise<{ day: string; occupancy: number; onBooks: number }[]> {
@@ -49,3 +57,6 @@ export const revenueService = {
     return unwrap(res);
   },
 };
+
+export interface AutopilotRun { id: string; applied: number; skipped: number; trigger: string; summary: string; createdAt: string }
+export interface AutopilotStatus { enabled: boolean; lastRunAt: string | null; runs: AutopilotRun[] }

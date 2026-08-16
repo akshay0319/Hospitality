@@ -77,10 +77,19 @@ export default function RevenuePage() {
     onError: () => toast.error("Some rates failed to apply"),
   });
 
+  const apStatus = useQuery({ queryKey: ["autopilot-status"], queryFn: () => revenueService.getAutopilotStatus(), retry: false });
+  const invalidateAp = () => qc.invalidateQueries({ queryKey: ["autopilot-status"] });
+
   const autopilot = useMutation({
     mutationFn: () => revenueService.runAutopilot(),
-    onSuccess: (r) => { toast.success(`Autopilot applied ${r.applied} rates (skipped ${r.skippedLocked} locked, ${r.skippedSmall} minor)`); invalidate(); },
+    onSuccess: (r) => { toast.success(`Autopilot applied ${r.applied} rates (skipped ${r.skippedLocked} locked, ${r.skippedSmall} minor)`); invalidate(); invalidateAp(); },
     onError: () => toast.error("Autopilot failed"),
+  });
+
+  const toggleAp = useMutation({
+    mutationFn: (enabled: boolean) => revenueService.toggleAutopilot(enabled),
+    onSuccess: (r) => { toast.success(`Nightly autopilot ${r.enabled ? "enabled" : "disabled"}`); invalidateAp(); },
+    onError: () => toast.error("Could not update autopilot"),
   });
 
   const recs = (liveRecs ?? []).slice(0, 24);
@@ -178,6 +187,43 @@ export default function RevenuePage() {
                 </AreaChart>
               </ResponsiveContainer>
             </div>
+          </section>
+
+          <section className="rounded-xl border border-[color:var(--ai)]/25 bg-[color:var(--ai-muted)]/10 p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-start gap-3">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg gradient-ai shadow-glow-ai"><Sparkles className="h-4.5 w-4.5 text-white" /></div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-[14px] font-semibold text-foreground">Autonomous Revenue Agent</h3>
+                    <Badge tone="ai">✦ AI</Badge>
+                  </div>
+                  <p className="mt-0.5 text-[12px] text-muted-foreground">
+                    {apStatus.data?.enabled
+                      ? "Runs nightly at 2 AM — auto-applies AI rates within ±20% guardrails."
+                      : "Off — enable to auto-apply AI rates every night within guardrails."}
+                    {apStatus.data?.lastRunAt && <span className="text-tertiary"> · last run {new Date(apStatus.data.lastRunAt).toLocaleString()}</span>}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => toggleAp.mutate(!apStatus.data?.enabled)}
+                disabled={toggleAp.isPending}
+                role="switch" aria-checked={!!apStatus.data?.enabled}
+                className={cn("relative h-6 w-11 shrink-0 rounded-full transition disabled:opacity-50", apStatus.data?.enabled ? "bg-[color:var(--ai)]" : "bg-elevated")}>
+                <span className={cn("absolute top-0.5 h-5 w-5 rounded-full bg-white transition-all", apStatus.data?.enabled ? "left-[22px]" : "left-0.5")} />
+              </button>
+            </div>
+            {(apStatus.data?.runs?.length ?? 0) > 0 && (
+              <div className="mt-3 space-y-1.5 border-t border-[color:var(--ai)]/15 pt-3">
+                {apStatus.data!.runs.slice(0, 3).map((run) => (
+                  <div key={run.id} className="flex items-center justify-between text-[11px]">
+                    <span className="text-muted-foreground">{run.summary}</span>
+                    <span className="shrink-0 text-tertiary">{run.trigger.toLowerCase()} · {new Date(run.createdAt).toLocaleDateString()}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </section>
 
           <section className="overflow-hidden rounded-xl border border-border bg-surface">

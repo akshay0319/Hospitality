@@ -1,4 +1,5 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Logger } from '@nestjs/common';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { IsEnum, IsOptional, IsString, IsNumber, IsDateString, IsBoolean } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { PrismaService } from '@/prisma/prisma.service';
@@ -30,6 +31,7 @@ export class BulkRateDto {
 
 @Injectable()
 export class RevenueService {
+  private readonly logger = new Logger(RevenueService.name);
   constructor(private readonly prisma: PrismaService) {}
 
   // ── Rate Plans ────────────────────────────────────────────────────────────────
@@ -191,14 +193,14 @@ export class RevenueService {
   /**
    * Autopilot: apply AI rate recommendations within guardrails — skip locked
    * cells, skip trivial (<3%) changes, and clamp any change to ±20% of current.
-   * ponytail: manual trigger; add a nightly cron when a scheduler exists.
+   * Every run is logged; a nightly cron drives the SCHEDULED trigger.
    */
-  async runAutopilot(propertyId: string) {
+  async runAutopilot(propertyId: string, trigger: 'MANUAL' | 'SCHEDULED' = 'MANUAL') {
     const recs = await this.getAIRecommendations(propertyId);
     const plan =
       (await this.prisma.ratePlan.findFirst({ where: { propertyId, type: 'BAR' } })) ??
       (await this.prisma.ratePlan.findFirst({ where: { propertyId } }));
-    if (!plan) return { applied: 0, skippedLocked: 0, skippedSmall: 0, total: 0 };
+    if (!plan) return { applied: 0, skippedLocked: 0, skippedSmall: 0, total: 0, summary: 'No rate plan configured' };
 
     let applied = 0, skippedLocked = 0, skippedSmall = 0;
     for (const r of recs) {
@@ -210,7 +212,47 @@ export class RevenueService {
       });
       applied++;
     }
-    return { applied, skippedLocked, skippedSmall, total: recs.length };
+
+    const summary = `Applied ${applied} rate change(s) within ±20% guardrails; skipped ${skippedLocked} locked, ${skippedSmall} minor.`;
+    await this.prisma.autopilotRun.create({ data: { propertyId, applied, skipped: skippedLocked + skippedSmall, trigger: trigger as never, summary } });
+    await this.prisma.autopilotConfig.upsert({
+      where: { propertyId },
+      create: { propertyId, enabled: trigger === 'SCHEDULED', lastRunAt: new Date() },
+      update: { lastRunAt: new Date() },
+    });
+    return { applied, skippedLocked, skippedSmall, total: recs.length, summary };
+  }
+
+  // ── Autonomous Revenue Agent: config + history + nightly schedule ────────────
+  async getAutopilotStatus(propertyId: string) {
+    const [config, runs] = await Promise.all([
+      this.prisma.autopilotConfig.findUnique({ where: { propertyId } }),
+      this.prisma.autopilotRun.findMany({ where: { propertyId }, orderBy: { createdAt: 'desc' }, take: 10 }),
+    ]);
+    return { enabled: config?.enabled ?? false, lastRunAt: config?.lastRunAt ?? null, runs };
+  }
+
+  async toggleAutopilot(propertyId: string, enabled: boolean) {
+    const c = await this.prisma.autopilotConfig.upsert({
+      where: { propertyId }, create: { propertyId, enabled }, update: { enabled },
+    });
+    return { enabled: c.enabled };
+  }
+
+  // Runs the autopilot for every property that has it enabled.
+  async runScheduledAutopilot() {
+    const configs = await this.prisma.autopilotConfig.findMany({ where: { enabled: true } });
+    for (const c of configs) {
+      try { await this.runAutopilot(c.propertyId, 'SCHEDULED'); }
+      catch (e) { this.logger.error(`Autopilot failed for ${c.propertyId}: ${(e as Error).message}`); }
+    }
+    return configs.length;
+  }
+
+  @Cron(CronExpression.EVERY_DAY_AT_2AM)
+  async nightlyAutopilot() {
+    const n = await this.runScheduledAutopilot();
+    if (n) this.logger.log(`Nightly autopilot ran for ${n} property(ies)`);
   }
 
   /**

@@ -116,6 +116,25 @@ export declare class RevenueController {
         skippedLocked: number;
         skippedSmall: number;
         total: number;
+        summary: string;
+    }>;
+    autopilotStatus(propertyId: string): Promise<{
+        enabled: boolean;
+        lastRunAt: Date | null;
+        runs: {
+            id: string;
+            propertyId: string;
+            createdAt: Date;
+            summary: string;
+            applied: number;
+            skipped: number;
+            trigger: import(".prisma/client").$Enums.AutopilotTrigger;
+        }[];
+    }>;
+    toggleAutopilot(propertyId: string, body: {
+        enabled: boolean;
+    }): Promise<{
+        enabled: boolean;
     }>;
     getForecast(propertyId: string, days?: string): Promise<{
         day: string;

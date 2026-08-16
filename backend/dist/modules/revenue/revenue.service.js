@@ -11,9 +11,11 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
+var RevenueService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RevenueService = exports.BulkRateDto = exports.SetRateDto = exports.CreateRatePlanDto = void 0;
 const common_1 = require("@nestjs/common");
+const schedule_1 = require("@nestjs/schedule");
 const class_validator_1 = require("class-validator");
 const swagger_1 = require("@nestjs/swagger");
 const prisma_service_1 = require("../../prisma/prisma.service");
@@ -102,9 +104,10 @@ __decorate([
     (0, class_validator_1.IsNumber)(),
     __metadata("design:type", Number)
 ], BulkRateDto.prototype, "ratePerNight", void 0);
-let RevenueService = class RevenueService {
+let RevenueService = RevenueService_1 = class RevenueService {
     constructor(prisma) {
         this.prisma = prisma;
+        this.logger = new common_1.Logger(RevenueService_1.name);
     }
     async findRatePlans(propertyId) {
         return this.prisma.ratePlan.findMany({
@@ -235,12 +238,12 @@ let RevenueService = class RevenueService {
     async acceptRecommendation(propertyId, ratePlanId, roomTypeId, date, rate) {
         return this.setRate(propertyId, ratePlanId, { roomTypeId, date, ratePerNight: rate });
     }
-    async runAutopilot(propertyId) {
+    async runAutopilot(propertyId, trigger = 'MANUAL') {
         const recs = await this.getAIRecommendations(propertyId);
         const plan = (await this.prisma.ratePlan.findFirst({ where: { propertyId, type: 'BAR' } })) ??
             (await this.prisma.ratePlan.findFirst({ where: { propertyId } }));
         if (!plan)
-            return { applied: 0, skippedLocked: 0, skippedSmall: 0, total: 0 };
+            return { applied: 0, skippedLocked: 0, skippedSmall: 0, total: 0, summary: 'No rate plan configured' };
         let applied = 0, skippedLocked = 0, skippedSmall = 0;
         for (const r of recs) {
             if (r.isLocked) {
@@ -257,7 +260,44 @@ let RevenueService = class RevenueService {
             });
             applied++;
         }
-        return { applied, skippedLocked, skippedSmall, total: recs.length };
+        const summary = `Applied ${applied} rate change(s) within ±20% guardrails; skipped ${skippedLocked} locked, ${skippedSmall} minor.`;
+        await this.prisma.autopilotRun.create({ data: { propertyId, applied, skipped: skippedLocked + skippedSmall, trigger: trigger, summary } });
+        await this.prisma.autopilotConfig.upsert({
+            where: { propertyId },
+            create: { propertyId, enabled: trigger === 'SCHEDULED', lastRunAt: new Date() },
+            update: { lastRunAt: new Date() },
+        });
+        return { applied, skippedLocked, skippedSmall, total: recs.length, summary };
+    }
+    async getAutopilotStatus(propertyId) {
+        const [config, runs] = await Promise.all([
+            this.prisma.autopilotConfig.findUnique({ where: { propertyId } }),
+            this.prisma.autopilotRun.findMany({ where: { propertyId }, orderBy: { createdAt: 'desc' }, take: 10 }),
+        ]);
+        return { enabled: config?.enabled ?? false, lastRunAt: config?.lastRunAt ?? null, runs };
+    }
+    async toggleAutopilot(propertyId, enabled) {
+        const c = await this.prisma.autopilotConfig.upsert({
+            where: { propertyId }, create: { propertyId, enabled }, update: { enabled },
+        });
+        return { enabled: c.enabled };
+    }
+    async runScheduledAutopilot() {
+        const configs = await this.prisma.autopilotConfig.findMany({ where: { enabled: true } });
+        for (const c of configs) {
+            try {
+                await this.runAutopilot(c.propertyId, 'SCHEDULED');
+            }
+            catch (e) {
+                this.logger.error(`Autopilot failed for ${c.propertyId}: ${e.message}`);
+            }
+        }
+        return configs.length;
+    }
+    async nightlyAutopilot() {
+        const n = await this.runScheduledAutopilot();
+        if (n)
+            this.logger.log(`Nightly autopilot ran for ${n} property(ies)`);
     }
     async getForecast(propertyId, days = 14) {
         const property = await this.prisma.property.findUnique({ where: { id: propertyId }, select: { totalRooms: true } });
@@ -282,7 +322,13 @@ let RevenueService = class RevenueService {
     }
 };
 exports.RevenueService = RevenueService;
-exports.RevenueService = RevenueService = __decorate([
+__decorate([
+    (0, schedule_1.Cron)(schedule_1.CronExpression.EVERY_DAY_AT_2AM),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], RevenueService.prototype, "nightlyAutopilot", null);
+exports.RevenueService = RevenueService = RevenueService_1 = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService])
 ], RevenueService);

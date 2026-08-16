@@ -22,6 +22,7 @@ export declare class BulkRateDto {
 }
 export declare class RevenueService {
     private readonly prisma;
+    private readonly logger;
     constructor(prisma: PrismaService);
     findRatePlans(propertyId: string): Promise<{
         name: string;
@@ -143,12 +144,31 @@ export declare class RevenueService {
         isLocked: boolean;
         lockedAt: Date | null;
     }>;
-    runAutopilot(propertyId: string): Promise<{
+    runAutopilot(propertyId: string, trigger?: 'MANUAL' | 'SCHEDULED'): Promise<{
         applied: number;
         skippedLocked: number;
         skippedSmall: number;
         total: number;
+        summary: string;
     }>;
+    getAutopilotStatus(propertyId: string): Promise<{
+        enabled: boolean;
+        lastRunAt: Date | null;
+        runs: {
+            id: string;
+            propertyId: string;
+            createdAt: Date;
+            summary: string;
+            applied: number;
+            skipped: number;
+            trigger: import(".prisma/client").$Enums.AutopilotTrigger;
+        }[];
+    }>;
+    toggleAutopilot(propertyId: string, enabled: boolean): Promise<{
+        enabled: boolean;
+    }>;
+    runScheduledAutopilot(): Promise<number>;
+    nightlyAutopilot(): Promise<void>;
     getForecast(propertyId: string, days?: number): Promise<{
         day: string;
         occupancy: number;

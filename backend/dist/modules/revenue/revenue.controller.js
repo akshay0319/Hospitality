@@ -44,6 +44,12 @@ let RevenueController = class RevenueController {
     runAutopilot(propertyId) {
         return this.revenueService.runAutopilot(propertyId);
     }
+    autopilotStatus(propertyId) {
+        return this.revenueService.getAutopilotStatus(propertyId);
+    }
+    toggleAutopilot(propertyId, body) {
+        return this.revenueService.toggleAutopilot(propertyId, !!body.enabled);
+    }
     getForecast(propertyId, days) {
         return this.revenueService.getForecast(propertyId, days ? parseInt(days) : 14);
     }
@@ -115,6 +121,23 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], RevenueController.prototype, "runAutopilot", null);
+__decorate([
+    (0, common_1.Get)('autopilot/status'),
+    openapi.ApiResponse({ status: 200 }),
+    __param(0, (0, current_user_decorator_1.CurrentUser)('propertyId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], RevenueController.prototype, "autopilotStatus", null);
+__decorate([
+    (0, common_1.Post)('autopilot/toggle'),
+    openapi.ApiResponse({ status: 201 }),
+    __param(0, (0, current_user_decorator_1.CurrentUser)('propertyId')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], RevenueController.prototype, "toggleAutopilot", null);
 __decorate([
     (0, common_1.Get)('forecast'),
     openapi.ApiResponse({ status: 200 }),

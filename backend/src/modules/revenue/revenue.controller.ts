@@ -50,6 +50,16 @@ export class RevenueController {
     return this.revenueService.runAutopilot(propertyId);
   }
 
+  @Get('autopilot/status')
+  autopilotStatus(@CurrentUser('propertyId') propertyId: string) {
+    return this.revenueService.getAutopilotStatus(propertyId);
+  }
+
+  @Post('autopilot/toggle')
+  toggleAutopilot(@CurrentUser('propertyId') propertyId: string, @Body() body: { enabled: boolean }) {
+    return this.revenueService.toggleAutopilot(propertyId, !!body.enabled);
+  }
+
   @Get('forecast')
   getForecast(@CurrentUser('propertyId') propertyId: string, @Query('days') days?: string) {
     return this.revenueService.getForecast(propertyId, days ? parseInt(days) : 14);

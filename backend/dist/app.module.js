@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppModule = void 0;
 const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
+const schedule_1 = require("@nestjs/schedule");
 const throttler_1 = require("@nestjs/throttler");
 const configuration_1 = __importDefault(require("./config/configuration"));
 const prisma_module_1 = require("./prisma/prisma.module");
@@ -42,6 +43,7 @@ exports.AppModule = AppModule = __decorate([
                 envFilePath: '.env',
             }),
             throttler_1.ThrottlerModule.forRoot([{ ttl: 60000, limit: 100 }]),
+            schedule_1.ScheduleModule.forRoot(),
             prisma_module_1.PrismaModule,
             auth_module_1.AuthModule,
             users_module_1.UsersModule,

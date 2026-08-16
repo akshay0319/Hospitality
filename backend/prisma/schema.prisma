@@ -196,6 +196,8 @@ model Property {
   campaigns      Campaign[]
   channels       Channel[]
   cancellationPolicy CancellationPolicy?
+  autopilotConfig    AutopilotConfig?
+  autopilotRuns      AutopilotRun[]
 
   @@map("properties")
 }
@@ -717,4 +719,35 @@ model CancellationPolicy {
   property Property @relation(fields: [propertyId], references: [id])
 
   @@map("cancellation_policies")
+}
+
+model AutopilotConfig {
+  id         String    @id @default(uuid())
+  propertyId String    @unique
+  enabled    Boolean   @default(false)
+  lastRunAt  DateTime?
+  createdAt  DateTime  @default(now())
+
+  property Property @relation(fields: [propertyId], references: [id])
+
+  @@map("autopilot_config")
+}
+
+enum AutopilotTrigger {
+  SCHEDULED
+  MANUAL
+}
+
+model AutopilotRun {
+  id         String           @id @default(uuid())
+  propertyId String
+  applied    Int              @default(0)
+  skipped    Int              @default(0)
+  trigger    AutopilotTrigger @default(MANUAL)
+  summary    String
+  createdAt  DateTime         @default(now())
+
+  property Property @relation(fields: [propertyId], references: [id])
+
+  @@map("autopilot_runs")
 }
