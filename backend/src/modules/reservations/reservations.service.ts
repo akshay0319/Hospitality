@@ -8,7 +8,6 @@ import {
 } from './dto/reservation.dto';
 import { ReservationStatus, RoomStatus } from '@prisma/client';
 import dayjs from 'dayjs';
-import { v4 as uuidv4 } from 'uuid';
 import { paginate } from '@/common/dto/pagination.dto';
 
 @Injectable()
