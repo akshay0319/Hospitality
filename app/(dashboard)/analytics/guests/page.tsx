@@ -39,7 +39,7 @@ export default function GuestAnalyticsPage() {
                   <Pie data={pie} dataKey="count" nameKey="tier" cx="50%" cy="50%" innerRadius={50} outerRadius={80} paddingAngle={2}>
                     {pie.map((p) => <Cell key={p.tier} fill={TIER_COLOR[p.tier] ?? "oklch(0.6 0.05 260)"} />)}
                   </Pie>
-                  <Tooltip contentStyle={{ background: "oklch(0.24 0.05 265)", border: "1px solid oklch(0.35 0.08 265)", borderRadius: 8, fontSize: 11 }} />
+                  <Tooltip contentStyle={{ background: "oklch(1 0 0)", border: "1px solid oklch(0.90 0.006 262)", color: "oklch(0.24 0.02 265)", boxShadow: "0 8px 24px -8px oklch(0.2 0.03 262 / 0.18)", borderRadius: 8, fontSize: 11 }} />
                 </PieChart>
               </ResponsiveContainer>
             </div>

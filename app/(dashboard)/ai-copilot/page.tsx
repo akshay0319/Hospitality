@@ -264,9 +264,9 @@ function Message({ role, text, chart, sources }: { role: "user" | "ai"; text: st
                     <stop offset="100%" stopColor="oklch(0.65 0.22 295)" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid stroke="oklch(0.28 0.06 265)" strokeDasharray="2 4" />
+                <CartesianGrid stroke="oklch(0.92 0.005 262)" strokeDasharray="2 4" />
                 <XAxis dataKey="date" tickFormatter={(d: string) => d.slice(5)} tick={{ fill: "oklch(0.55 0.05 260)", fontSize: 9 }} interval={3} axisLine={false} tickLine={false} />
-                <Tooltip contentStyle={{ background: "oklch(0.24 0.05 265)", border: "1px solid oklch(0.35 0.08 265)", borderRadius: 8, fontSize: 11 }} formatter={(v: number) => [inr(v), "Revenue"]} />
+                <Tooltip contentStyle={{ background: "oklch(1 0 0)", border: "1px solid oklch(0.90 0.006 262)", color: "oklch(0.24 0.02 265)", boxShadow: "0 8px 24px -8px oklch(0.2 0.03 262 / 0.18)", borderRadius: 8, fontSize: 11 }} formatter={(v: number) => [inr(v), "Revenue"]} />
                 <Area type="monotone" dataKey="revenue" stroke="oklch(0.74 0.20 295)" strokeWidth={2} fill="url(#dropG)" />
               </AreaChart>
             </ResponsiveContainer>

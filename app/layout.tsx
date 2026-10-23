@@ -37,7 +37,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="en"
-      className={`dark ${inter.variable} ${sora.variable} ${jetbrains.variable}`}
+      className={`${inter.variable} ${sora.variable} ${jetbrains.variable}`}
       suppressHydrationWarning
     >
       <body className="bg-background text-foreground antialiased">

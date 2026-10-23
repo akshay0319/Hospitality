@@ -22,7 +22,7 @@ const CHANNEL_LABEL: Record<string, string> = {
 const TIER_COLOR: Record<string, string> = {
   PLATINUM: "oklch(0.65 0.22 295)", GOLD: "oklch(0.75 0.16 70)", SILVER: "oklch(0.72 0.13 210)", BRONZE: "oklch(0.55 0.08 60)",
 };
-const tip = { background: "oklch(0.24 0.05 265)", border: "1px solid oklch(0.35 0.08 265)", borderRadius: 8, fontSize: 11 };
+const tip = { background: "oklch(1 0 0)", border: "1px solid oklch(0.90 0.006 262)", color: "oklch(0.24 0.02 265)", boxShadow: "0 8px 24px -8px oklch(0.2 0.03 262 / 0.18)", borderRadius: 8, fontSize: 11 };
 
 function exportCsv(rows: TrendPoint[]) {
   const head = "date,revenue,occupancy,adr,revpar,roomsSold";
@@ -87,7 +87,7 @@ export default function AnalyticsPage() {
                     <stop offset="100%" stopColor="oklch(0.70 0.16 165)" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid stroke="oklch(0.28 0.06 265)" strokeDasharray="2 4" />
+                <CartesianGrid stroke="oklch(0.92 0.005 262)" strokeDasharray="2 4" />
                 <XAxis dataKey="date" tickFormatter={(d: string) => d.slice(5)} tick={{ fill: "oklch(0.55 0.05 260)", fontSize: 9 }} interval={4} axisLine={false} tickLine={false} />
                 <YAxis yAxisId="l" tick={{ fill: "oklch(0.55 0.05 260)", fontSize: 9 }} axisLine={false} tickLine={false} width={40} tickFormatter={(v: number) => (v >= 1000 ? `${v / 1000}k` : `${v}`)} />
                 <YAxis yAxisId="r" orientation="right" tick={{ fill: "oklch(0.55 0.05 260)", fontSize: 9 }} axisLine={false} tickLine={false} width={30} unit="%" />
@@ -112,7 +112,7 @@ export default function AnalyticsPage() {
               ) : (
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={channelData} layout="vertical" margin={{ left: 20 }}>
-                    <CartesianGrid stroke="oklch(0.28 0.06 265)" strokeDasharray="2 4" horizontal={false} />
+                    <CartesianGrid stroke="oklch(0.92 0.005 262)" strokeDasharray="2 4" horizontal={false} />
                     <XAxis type="number" tick={{ fill: "oklch(0.55 0.05 260)", fontSize: 9 }} axisLine={false} tickLine={false} />
                     <YAxis type="category" dataKey="name" tick={{ fill: "oklch(0.68 0.04 255)", fontSize: 11 }} axisLine={false} tickLine={false} width={80} />
                     <Tooltip contentStyle={tip} formatter={(v: number, n: string) => (n === "revenue" ? [inr(v), "Revenue"] : [v, "Bookings"])} />
@@ -159,7 +159,7 @@ export default function AnalyticsPage() {
           <div className="h-[200px] p-4">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={t}>
-                <CartesianGrid stroke="oklch(0.28 0.06 265)" strokeDasharray="2 4" vertical={false} />
+                <CartesianGrid stroke="oklch(0.92 0.005 262)" strokeDasharray="2 4" vertical={false} />
                 <XAxis dataKey="date" tickFormatter={(d: string) => d.slice(5)} tick={{ fill: "oklch(0.55 0.05 260)", fontSize: 9 }} interval={4} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fill: "oklch(0.55 0.05 260)", fontSize: 9 }} axisLine={false} tickLine={false} width={28} allowDecimals={false} />
                 <Tooltip contentStyle={tip} formatter={(v: number) => [v, "Rooms sold"]} />
