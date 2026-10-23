@@ -20,6 +20,8 @@ UPDATE `reservations`
 -- ── 2. Today's arrival + departure (recreated fresh each run) ─────────────────
 DELETE e FROM `reservation_extras` e JOIN `reservations` r ON r.id=e.reservationId WHERE r.confirmationNumber IN ('HOS-ARR001','HOS-DEP001');
 DELETE p FROM `payments` p JOIN `reservations` r ON r.id=p.reservationId WHERE r.confirmationNumber IN ('HOS-ARR001','HOS-DEP001');
+DELETE fc FROM `folio_charges` fc JOIN `folios` f ON f.id=fc.folioId JOIN `reservations` r ON r.id=f.reservationId WHERE r.confirmationNumber IN ('HOS-ARR001','HOS-DEP001');
+DELETE f FROM `folios` f JOIN `reservations` r ON r.id=f.reservationId WHERE r.confirmationNumber IN ('HOS-ARR001','HOS-DEP001');
 DELETE FROM `reservations` WHERE `confirmationNumber` IN ('HOS-ARR001','HOS-DEP001');
 
 INSERT INTO `reservations`
